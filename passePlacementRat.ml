@@ -1,4 +1,4 @@
-(* Module de la passe du placement mémoire *)
+(*(* Module de la passe du placement mémoire *)
 (* doit être conforme à l'interface Passe *)
 open Tds
 open Exceptions
@@ -52,4 +52,4 @@ let analyse_placement_fonction (AstType.Fonction(info,lp,li)) = failwith "todo"
 let analyser (AstType.Programme(fonctions,bloc)) = 
   let nlf = List.map analyse_placement_fonction fonctions in
   let (nb,_) = analyse_placement_bloc bloc 0 "SB" in
-  AstPlacement.Programme(nlf,nb)
+  AstPlacement.Programme(nlf,nb)*)
