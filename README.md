@@ -60,7 +60,7 @@ type instruction =
 
 type expression = 
 (*| Ident of String*)
-| Affectable  of affectable
+| Affectable  of affectablev
 | Adresse of info_ast
 | New of typ
 | Null
