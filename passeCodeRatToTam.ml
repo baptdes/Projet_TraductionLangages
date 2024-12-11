@@ -34,7 +34,7 @@ let rec analyse_code_expression e = match e with
       | PlusRat -> Tam.call "ST" "RAdd"
       | MultInt -> Tam.subr "IMul"
       | MultRat -> Tam.call "ST" "RMul"
-      | Fraction -> ""
+      | Fraction -> Tam.call "ST" "norm"
       | EquInt | EquBool -> Tam.subr "IEq"
       | Inf -> Tam.subr "ISub"
       end
@@ -63,7 +63,13 @@ let rec analyse_code_instruction i = match i with
     let debut = getEtiquette() in
     let fin = getEtiquette() in
     Tam.label debut ^ nc ^ Tam.jumpif 0 fin ^ nb ^ Tam.jump debut ^ Tam.label fin
-  | AstPlacement.Conditionnelle (c,t,e) -> failwith "todo"
+  | AstPlacement.Conditionnelle (c,t,e) -> 
+      let nc = analyse_code_expression c in 
+      let nt = analyse_code_bloc t in
+      let ne = analyse_code_bloc e in
+      let toElse = getEtiquette() in
+      let fin = getEtiquette() in
+      nc ^ Tam.jumpif 1 toElse ^ nt ^ Tam.jump fin ^ Tam.label toElse ^ ne ^ Tam.label fin
   | AstPlacement.Retour (_,_,_) -> failwith "todo"
   | AstPlacement.AffichageInt e -> 
     let ne = analyse_code_expression e in
@@ -79,12 +85,13 @@ let rec analyse_code_instruction i = match i with
 (* AstPlacement.bloc -> String *)
 and analyse_code_bloc (li,taille) = 
   Tam.push taille ^
-  List.fold_left (fun acc i -> acc ^ analyse_code_instruction i) "" li
+  List.fold_left (fun acc i -> acc ^ analyse_code_instruction i) "" li ^ (Tam.pop 0 taille)
 
 (* AstPlacement.fonction -> String *)
 let analyse_code_fonction f = ""
 
 (* AstPlacement.programme -> String *)
 let analyser (AstPlacement.Programme(fonctions,prog)) = 
-  List.fold_left (fun acc i -> acc ^ analyse_code_fonction i) "" fonctions ^
-  analyse_code_bloc prog 
+  let n = Code.getEntete() in
+  List.fold_left (fun acc i -> acc ^ analyse_code_fonction i) "" fonctions ^ n ^ Tam.label "main" ^
+  analyse_code_bloc prog ^ Tam.halt
