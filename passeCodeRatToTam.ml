@@ -1,5 +1,4 @@
 open Tds
-open Exceptions
 open Ast
 open Type
 open Code
@@ -9,7 +8,13 @@ type t2 = string
 
 (*AstPlacement.expression -> string *)
 let rec analyse_code_expression e = match e with
-  | AstType.AppelFonction (id,le) -> failwith "todo"
+  | AstType.AppelFonction (info,le) -> 
+    (*Récupérer le nom de la fonction*)
+    let id = match info_ast_to_info info with
+      | InfoFun(id,_,_) -> id
+      | _ -> failwith "Problème dans la passe Tds"
+    in
+    (List.fold_right (fun t acc -> (analyse_code_expression t) ^ acc) le "") ^ (Tam.call "SB" id)
   | AstType.Ident (info) -> 
     begin
       match info_ast_to_info info with
@@ -69,14 +74,14 @@ let rec analyse_code_instruction i = match i with
       let ne = analyse_code_bloc e in
       let toElse = getEtiquette() in
       let fin = getEtiquette() in
-      nc ^ Tam.jumpif 1 toElse ^ nt ^ Tam.jump fin ^ Tam.label toElse ^ ne ^ Tam.label fin
-  | AstPlacement.Retour (_,_,_) -> failwith "todo"
+      nc ^ Tam.jumpif 0 toElse ^ nt ^ Tam.jump fin ^ Tam.label toElse ^ ne ^ Tam.label fin
+  | AstPlacement.Retour (e,tretour,tparams) -> (analyse_code_expression e) ^ (Tam.return tretour tparams) 
   | AstPlacement.AffichageInt e -> 
     let ne = analyse_code_expression e in
     ne ^ Tam.subr "IOut"
   | AstPlacement.AffichageRat e -> 
     let ne = analyse_code_expression e in
-    ne ^ Tam.subr "ROut"
+    ne ^ Tam.call "ST" "ROut"
   | AstPlacement.AffichageBool e -> 
     let ne = analyse_code_expression e in
     ne ^ Tam.subr "BOut"
@@ -88,10 +93,15 @@ and analyse_code_bloc (li,taille) =
   List.fold_left (fun acc i -> acc ^ analyse_code_instruction i) "" li ^ (Tam.pop 0 taille)
 
 (* AstPlacement.fonction -> String *)
-let analyse_code_fonction f = ""
+let analyse_code_fonction (AstPlacement.Fonction(info,_,bloc)) = 
+  let nom = match info_ast_to_info info with
+    | InfoFun(id,_,_) -> id
+    | _ -> failwith "Problème dans la passe Tds"
+  in
+  (Tam.label nom) ^ (analyse_code_bloc bloc) ^ Tam.halt
 
 (* AstPlacement.programme -> String *)
 let analyser (AstPlacement.Programme(fonctions,prog)) = 
   let n = Code.getEntete() in
-  List.fold_left (fun acc i -> acc ^ analyse_code_fonction i) "" fonctions ^ n ^ Tam.label "main" ^
-  analyse_code_bloc prog ^ Tam.halt
+  let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
+  n ^ nf ^ Tam.label "main" ^ analyse_code_bloc prog ^ Tam.halt
