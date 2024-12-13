@@ -45,6 +45,7 @@ open Ast.AstSyntax
 %type <typ> typ
 %type <typ*string> param
 %type <expression> e 
+%type <affectable> a
 
 (* Type et définition de l'axiome *)
 %start <Ast.AstSyntax.programme> main
@@ -63,7 +64,7 @@ bloc : AO li=i* AF      {li}
 
 i :
 | t=typ n=ID EQUAL e1=e PV          {Declaration (t,n,e1)}
-| n=ID EQUAL e1=e PV                {Affectation (n,e1)}
+| a1=a EQUAL e1=e PV                {Affectation (a1,e1)} (*TODO : A  modifier*)
 | CONST n=ID EQUAL e=ENTIER PV      {Constante (n,e)}
 | PRINT e1=e PV                     {Affichage (e1)}
 | IF exp=e li1=bloc ELSE li2=bloc   {Conditionnelle (exp,li1,li2)}
@@ -75,10 +76,13 @@ typ :
 | INT     {Int}
 | RAT     {Rat}
 
+a : 
+| MULT a1=a   {Deref a1}
+| n=ID    {Ident n}
+
 e : 
 | n=ID PO lp=separated_list(VIRG,e) PF   {AppelFonction (n,lp)}
 | CO e1=e SLASH e2=e CF   {Binaire(Fraction,e1,e2)}
-| n=ID                    {Ident n}
 | TRUE                    {Booleen true}
 | FALSE                   {Booleen false}
 | e=ENTIER                {Entier e}
