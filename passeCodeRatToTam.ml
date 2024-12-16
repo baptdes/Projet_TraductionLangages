@@ -1,4 +1,4 @@
-open Tds
+(*open Tds
 open Ast
 open Type
 open Code
@@ -104,4 +104,4 @@ let analyse_code_fonction (AstPlacement.Fonction(info,_,bloc)) =
 let analyser (AstPlacement.Programme(fonctions,prog)) = 
   let n = Code.getEntete() in
   let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
-  n ^ nf ^ Tam.label "main" ^ analyse_code_bloc prog ^ Tam.halt
+  n ^ nf ^ Tam.label "main" ^ analyse_code_bloc prog ^ Tam.halt*)

@@ -14,8 +14,8 @@ type t2 = Ast.AstTds.programme
 (* Transforme l'expression en une expression de type AstTds.expression
 et vérifie TODO... *)
 (* Erreur si TODO... *)
-let analyse_tds_affectable tds a modif = match a with
-  |Ident n -> 
+let rec analyse_tds_affectable tds a modif = match a with
+  |AstSyntax.Ident n -> 
       begin
         match (chercherGlobalement tds n) with
           |None -> raise (IdentifiantNonDeclare n)
@@ -24,16 +24,18 @@ let analyse_tds_affectable tds a modif = match a with
               match (info_ast_to_info infoast) with
                 |InfoVar _ -> AstTds.Ident infoast
                 |InfoConst (_,_)-> 
-                  (* Si l'affectable est à droite, tout est OK*)
+                  (* Si l'affectable est à gauche, on ne peut pas avoir de constante*)
                   if modif then 
                     raise (MauvaiseUtilisationIdentifiant n)
-                  (* Si l'affectable est à gauche, on ne peut pas avoir de constante*)
+                  (* Si l'affectable est à droite, tout est OK*)
                   else
-                    AstTds.Ident(info)
+                    AstTds.Ident(infoast)
                 |InfoFun _ -> raise (MauvaiseUtilisationIdentifiant n)
             end
       end
-  |Deref a -> let nv = analyse_tds_affectable tds a true in AstTds.Deref nv
+  |AstSyntax.Deref a -> 
+    let nv = analyse_tds_affectable tds a modif in
+    AstTds.Deref(nv)
 
 (* analyse_tds_expression : tds -> AstSyntax.expression -> AstTds.expression *)
 (* Paramètre tds : la table des symboles courante *)
@@ -62,7 +64,7 @@ let rec analyse_tds_expression tds e = match e with
       AstTds.Unaire (op, ne)
   | AstSyntax.Entier i -> AstTds.Entier i
   | AstSyntax.Booleen b -> AstTds.Booleen b
-  | AstSyntax.Affectable a -> AstTds.Affectable (analyse_tds_affectable tds a true)
+  | AstSyntax.Affectable a -> AstTds.Affectable (analyse_tds_affectable tds a false)
 
 (* analyse_tds_instruction : tds -> info_ast option -> AstSyntax.instruction -> AstTds.instruction *)
 (* Paramètre tds : la table des symboles courante *)
@@ -98,7 +100,7 @@ let rec analyse_tds_instruction tds oia i =
             raise (DoubleDeclaration n)
       end
   | AstSyntax.Affectation (a,e) -> 
-      AstTds.Affectation (analyse_tds_affectable tds a false, analyse_tds_expression tds e)
+      AstTds.Affectation (analyse_tds_affectable tds a true, analyse_tds_expression tds e)
   | AstSyntax.Constante (n,v) ->
       begin
         match chercherLocalement tds n with

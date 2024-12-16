@@ -8,6 +8,21 @@ open Type
 type t1 = Ast.AstTds.programme
 type t2 = Ast.AstType.programme
 
+let rec analyser_type_affectable a = match a with
+  | AstTds.Ident(info) -> 
+    begin
+        match info_ast_to_info info with
+            | InfoVar (_,t,_,_) -> (AstType.Ident info, t)
+            | InfoConst _ -> (AstType.Ident info, Int)
+            | _ -> failwith "Erreur"
+    end
+  | AstTds.Deref(aff) -> 
+    begin
+        match analyser_type_affectable aff with
+            | (naff, Pointeur(t)) -> (AstType.Deref naff, t)
+            | (_, t) -> raise (TypeInattendu(t, Pointeur(Undefined)))
+end
+
 let rec analyse_type_expression e = match e with
   | AstTds.AppelFonction (info, le) -> 
     begin
@@ -20,12 +35,6 @@ let rec analyse_type_expression e = match e with
             AstType.AppelFonction (info, np),tr
           else
             raise (TypesParametresInattendus (tp, ntp))
-        | _ -> failwith "La passe Tds est mal faite"
-    end
-  | AstTds.Ident info -> 
-    begin
-      match info_ast_to_info info with
-        | InfoVar (_, t, _, _) -> AstType.Ident info, t
         | _ -> failwith "La passe Tds est mal faite"
     end
   | AstTds.Booleen b -> AstType.Booleen b, Bool
@@ -56,6 +65,7 @@ let rec analyse_type_expression e = match e with
 
       | _ -> raise (TypeBinaireInattendu (op, te1, te2))
     end
+  | AstTds.Affectable a -> let (na,t) = analyser_type_affectable a in (AstType.Affectable na, t)
 
 let rec analyse_type_instruction i = 
   match i with
@@ -66,17 +76,13 @@ let rec analyse_type_instruction i =
         AstType.Declaration (info, me))
       else
         raise (TypeInattendu (te, t))
-  | AstTds.Affectation (info, e) ->
-      begin
-        match info_ast_to_info info with
-        | InfoVar (_, t, _, _) ->
-          let (me,te) = analyse_type_expression e in
-          if est_compatible t te then
-            AstType.Affectation (info, me)
-          else
-            raise (TypeInattendu (te, t))
-        | _ -> failwith "La passe Tds est mal faite"
-      end
+  | AstTds.Affectation (a, e) ->
+      let (na,ta) = analyser_type_affectable a in
+      let (ne,te) = analyse_type_expression e in
+      if (est_compatible ta te) then 
+        AstType.Affectation(na, ne)
+      else 
+        raise (TypeInattendu(te, ta))
   | AstTds.Affichage(e) -> 
       let (me,te) = analyse_type_expression e in
       begin
