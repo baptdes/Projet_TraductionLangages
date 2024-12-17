@@ -13,17 +13,17 @@ let rec analyse_code_affectable a modif = match a with
         | InfoVar(_,t,dep,reg) -> 
           if modif then (Tam.store (getTaille t) dep reg)
           else (Tam.load (getTaille t) dep reg)
-        | InfoConst(_,v) -> Tam.loadi v
+        | InfoConst(_,v) -> Tam.loadl_int v
         | _ -> failwith "Problème dans la passe Tds"
     end
   | AstType.Deref(aff) -> (*A check quand on fait les pointeurs*)
       let action = 
         if modif then
-          (Tam.loadi 1)
+          (Tam.storei 1)
         else
           (Tam.loadi 1)
       in
-      (analyse_code_affectable aff) true ^ action
+      (analyse_code_affectable aff true) ^ action
 
 (*AstPlacement.expression -> string *)
 let rec analyse_code_expression e = match e with
