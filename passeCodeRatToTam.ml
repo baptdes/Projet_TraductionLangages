@@ -1,4 +1,4 @@
-(*open Tds
+open Tds
 open Ast
 open Type
 open Code
@@ -6,8 +6,29 @@ open Code
 type t1 = Ast.AstPlacement.programme
 type t2 = string
 
+let rec analyse_code_affectable a modif = match a with
+  | AstType.Ident(info) -> 
+    begin
+      match info_ast_to_info info with
+        | InfoVar(_,t,dep,reg) -> 
+          if modif then (Tam.store (getTaille t) dep reg)
+          else (Tam.load (getTaille t) dep reg)
+        | InfoConst(_,v) -> Tam.loadi v
+        | _ -> failwith "Problème dans la passe Tds"
+    end
+  | AstType.Deref(aff) -> (*A check quand on fait les pointeurs*)
+      let action = 
+        if modif then
+          (Tam.loadi 1)
+        else
+          (Tam.loadi 1)
+      in
+      (analyse_code_affectable aff) true ^ action
+
 (*AstPlacement.expression -> string *)
 let rec analyse_code_expression e = match e with
+  | AstType.Affectable(a) ->
+    analyse_code_affectable a false
   | AstType.AppelFonction (info,le) -> 
     (*Récupérer le nom de la fonction*)
     let id = match info_ast_to_info info with
@@ -15,13 +36,6 @@ let rec analyse_code_expression e = match e with
       | _ -> failwith "Problème dans la passe Tds"
     in
     (List.fold_right (fun t acc -> (analyse_code_expression t) ^ acc) le "") ^ (Tam.call "SB" id)
-  | AstType.Ident (info) -> 
-    begin
-      match info_ast_to_info info with
-        | InfoVar(_,t,dep,reg) -> Tam.load (getTaille t) dep reg
-        | InfoConst(_,v) -> Tam.loadi v
-        | _ -> failwith "Problème dans la passe Tds"
-    end
   | AstType.Booleen b -> Tam.loadl_int (if b then 1 else 0)
   | AstType.Entier i -> Tam.loadl_int i
   | AstType.Unaire (op,e) -> 
@@ -54,14 +68,7 @@ let rec analyse_code_instruction i = match i with
           Tam.push (getTaille t) ^ ne ^ Tam.store (getTaille t) dep reg;
         | _ -> failwith "Problème dans la passe Tds"
     end
-  | AstPlacement.Affectation(info,e) -> 
-    let ne = analyse_code_expression e in
-    begin
-      match info_ast_to_info info with
-        | InfoVar(_,t,dep,reg) -> 
-          ne ^ Tam.store (getTaille t) dep reg;
-        | _ -> failwith "Problème dans la passe Tds"
-    end
+  | AstPlacement.Affectation(a,e) -> analyse_code_expression e ^ analyse_code_affectable a true
   | AstPlacement.TantQue (c,b) -> 
     let nc = analyse_code_expression c in
     let nb = analyse_code_bloc b in
@@ -104,4 +111,4 @@ let analyse_code_fonction (AstPlacement.Fonction(info,_,bloc)) =
 let analyser (AstPlacement.Programme(fonctions,prog)) = 
   let n = Code.getEntete() in
   let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
-  n ^ nf ^ Tam.label "main" ^ analyse_code_bloc prog ^ Tam.halt*)
+  n ^ nf ^ Tam.label "main" ^ analyse_code_bloc prog ^ Tam.halt
