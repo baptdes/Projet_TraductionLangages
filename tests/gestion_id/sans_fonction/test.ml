@@ -34,11 +34,15 @@ let%test_unit "testAffectation4" =
   with
   | MauvaiseUtilisationIdentifiant("x") -> ()
 
-let%test_unit "testUtilisation1" = 
-  let _ = compiler (pathFichiersRat^"testUtilisation1.rat") in ()
+let%test_unit "testAffectationPointeur1" = 
+  let _ = compiler (pathFichiersRat^"testAffectationPointeur1.rat") in ()
 
-let%test_unit "testUtilisation2" = 
-  let _ = compiler (pathFichiersRat^"testUtilisation2.rat") in ()
+let%test_unit "testAffectationPointeur2" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testAffectationPointeur2.rat")
+  in raise ErreurNonDetectee
+  with
+|   IdentifiantNonDeclare("y") -> ()
 
 let%test_unit "testUtilisation3" = 
   try 
@@ -123,6 +127,26 @@ let%test_unit "testRecursiviteVariable" =
     in raise ErreurNonDetectee
   with
   | IdentifiantNonDeclare("x") -> ()
+
+let%test_unit "testUtilisationPointeur1" = 
+  let _ = compiler (pathFichiersRat^"testUtilisationPointeur1.rat") in ()
+
+let%test_unit "testUtilisationPointeur2" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testUtilisationPointeur2.rat")
+  in raise ErreurNonDetectee
+  with
+|   IdentifiantNonDeclare("z") -> ()
+
+let%test_unit "testDoublePointeur" = 
+  let _ = compiler (pathFichiersRat^"testDoublePointeur.rat") in ()
+
+let%test_unit "testDoubleDeclarationPointeur" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testDoubleDeclarationPointeur.rat")
+  in raise ErreurNonDetectee
+  with
+|   DoubleDeclaration("x") -> ()
 
 (* Fichiers de tests de la génération de code -> doivent passer la TDS *)
 open Unix

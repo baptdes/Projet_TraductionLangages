@@ -36,6 +36,9 @@ open Ast.AstSyntax
 %token MULT
 %token INF
 %token EOF
+%token REF
+%token NEW
+%token NULL
 
 (* Type de l'attribut synthétisé des non-terminaux *)
 %type <programme> prog
@@ -75,6 +78,7 @@ typ :
 | BOOL    {Bool}
 | INT     {Int}
 | RAT     {Rat}
+| t=typ MULT {Pointeur t}
 
 a : 
 | MULT a1=a   {Deref a1}
@@ -94,3 +98,6 @@ e :
 | PO e1=e INF e2=e PF     {Binaire (Inf,e1,e2)}
 | PO exp=e PF             {exp}
 | n=a                     {Affectable n}
+| REF i=ID                {Adresse i}
+| PO NEW t=typ PF         {New t}
+| NULL                    {Null}

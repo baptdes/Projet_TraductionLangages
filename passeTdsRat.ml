@@ -65,6 +65,19 @@ let rec analyse_tds_expression tds e = match e with
   | AstSyntax.Entier i -> AstTds.Entier i
   | AstSyntax.Booleen b -> AstTds.Booleen b
   | AstSyntax.Affectable a -> AstTds.Affectable (analyse_tds_affectable tds a false)
+  | Adresse id ->
+    begin
+      match (chercherGlobalement tds id) with
+        |None -> raise (IdentifiantNonDeclare id)
+        |Some infoast -> 
+          begin
+          match (info_ast_to_info infoast) with
+            |InfoVar _ -> AstTds.Adresse infoast
+            |_ -> raise (MauvaiseUtilisationIdentifiant id)
+          end
+    end
+  | AstSyntax.New t -> AstTds.New t
+  | AstSyntax.Null -> AstTds.Null
 
 (* analyse_tds_instruction : tds -> info_ast option -> AstSyntax.instruction -> AstTds.instruction *)
 (* Paramètre tds : la table des symboles courante *)

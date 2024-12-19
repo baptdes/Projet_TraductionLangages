@@ -1,4 +1,4 @@
-(* Module de la passe de gestion des types *)
+(*(* Module de la passe de gestion des types *)
 (* doit être conforme à l'interface Passe *)
 open Tds
 open Exceptions
@@ -136,4 +136,4 @@ let analyse_type_fonctions lf = List.map analyse_type_fonction lf
 en un programme de type AstType.programme *)
 (* Erreur si mauvaise utilisation des types *)
 let analyser (AstTds.Programme (fonctions,prog)) =
-  AstType.Programme(analyse_type_fonctions fonctions, analyse_type_bloc prog)
+  AstType.Programme(analyse_type_fonctions fonctions, analyse_type_bloc prog)*)

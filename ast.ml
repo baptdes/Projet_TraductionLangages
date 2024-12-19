@@ -42,6 +42,12 @@ type expression =
   | Binaire of binaire * expression * expression
   (* Affectable *)
   | Affectable of affectable
+  (* Adresse d'une variable *)
+  | Adresse of string
+  (* Nouveau pointeur *)
+  | New of typ
+  (* NULL *)
+  | Null
 
 (* Instructions de Rat *)
 type bloc = instruction list
@@ -93,6 +99,9 @@ struct
     | Unaire of AstSyntax.unaire * expression
     | Binaire of AstSyntax.binaire * expression * expression
     | Affectable of affectable
+    | Adresse of Tds.info_ast
+    | New of typ
+    | Null
 
   (* instructions existantes dans notre langage *)
   (* ~ instruction de l'AST syntaxique où les noms des identifiants ont été
