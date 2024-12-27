@@ -75,6 +75,9 @@ struct
           | _ -> (string_of_expression e1)^(string_of_binaire b)^(string_of_expression e2)^" "
         end
     | Affectable a -> (string_of_affectable a)
+    | New t -> "new " ^ string_of_type t
+    | Adresse a -> "&" ^ a
+    | Null -> "null"
 
   (* Conversion des instructions *)
   let rec string_of_instruction i =

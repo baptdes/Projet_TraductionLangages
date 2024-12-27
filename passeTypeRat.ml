@@ -1,4 +1,4 @@
-(*(* Module de la passe de gestion des types *)
+(* Module de la passe de gestion des types *)
 (* doit être conforme à l'interface Passe *)
 open Tds
 open Exceptions
@@ -66,6 +66,13 @@ let rec analyse_type_expression e = match e with
       | _ -> raise (TypeBinaireInattendu (op, te1, te2))
     end
   | AstTds.Affectable a -> let (na,t) = analyser_type_affectable a in (AstType.Affectable na, t)
+  | AstTds.Adresse info -> 
+    begin
+      match info_ast_to_info info with
+        | InfoVar (_,t,_,_) -> (AstType.Adresse info, Pointeur(t))
+    end
+  | AstTds.New t -> (AstType.New t, Pointeur(t))
+  | AstTds.Null -> (AstType.Null, Undefined)
 
 let rec analyse_type_instruction i = 
   match i with
@@ -136,4 +143,4 @@ let analyse_type_fonctions lf = List.map analyse_type_fonction lf
 en un programme de type AstType.programme *)
 (* Erreur si mauvaise utilisation des types *)
 let analyser (AstTds.Programme (fonctions,prog)) =
-  AstType.Programme(analyse_type_fonctions fonctions, analyse_type_bloc prog)*)
+  AstType.Programme(analyse_type_fonctions fonctions, analyse_type_bloc prog)

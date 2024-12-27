@@ -154,6 +154,9 @@ type expression =
   | Unaire of unaire * expression
   | Binaire of binaire * expression * expression
   | Affectable of affectable
+  | Adresse of Tds.info_ast
+  | New of typ
+  | Null
 
 (* instructions existantes Rat *)
 (* = instruction de AstTds + informations associées aux identificateurs, mises à jour *)

@@ -148,6 +148,16 @@ let%test_unit "testDoubleDeclarationPointeur" =
   with
 |   DoubleDeclaration("x") -> ()
 
+let%test_unit "testPointeurTD" = 
+  let _ = compiler (pathFichiersRat^"testPointeurTD.rat") in ()
+
+let%test_unit "testPointeurConstante" = 
+try 
+  let _ = compiler (pathFichiersRat^"testPointeurConstante.rat")
+  in raise ErreurNonDetectee
+with
+|   MauvaiseUtilisationIdentifiant("x") -> ()
+
 (* Fichiers de tests de la génération de code -> doivent passer la TDS *)
 open Unix
 open Filename

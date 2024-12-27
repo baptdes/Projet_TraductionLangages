@@ -189,6 +189,16 @@ let%test_unit "testRetourFonction"=
   with
   | RetourDansMain -> ()
 
+let%test_unit "testUtilisationPointeur1"=
+    let _ = compiler (pathFichiersRat^"testUtilisationPointeur1.rat") in ()
+
+let%test_unit "testUtilisationPointeur2"=
+  try
+    let _ = compiler (pathFichiersRat^"testUtilisationPointeur2.rat")
+    in raise ErreurNonDetectee
+  with
+  | IdentifiantNonDeclare("x") -> ()
+
 (* Fichiers de tests de la génération de code -> doivent passer la TDS *)
 open Unix
 open Filename

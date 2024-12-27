@@ -1,0 +1,4 @@
+test{
+  bool * x = (new int);
+  *x = true;
+}
