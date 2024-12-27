@@ -1,0 +1,5 @@
+pointeur {
+    int * x = (new int);
+    * x = 4;
+    print *x;
+}

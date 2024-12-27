@@ -12,7 +12,7 @@ let rec analyse_code_affectable a modif deref = match a with
     begin
       match info_ast_to_info info with
         | InfoVar(_,t,dep,reg) -> 
-          if modif then (Tam.store (getTaille t) dep reg)
+          if (modif && not deref) then (Tam.store (getTaille t) dep reg)
           else (Tam.load (getTaille t) dep reg)
         | InfoConst(_,v) -> Tam.loadl_int v
         | _ -> failwith "Problème dans la passe Tds"
