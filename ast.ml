@@ -143,7 +143,7 @@ type binaire = Fraction | PlusInt | PlusRat | MultInt | MultRat | EquInt | EquBo
 (* Affectations Rat *)
 type affectable = 
   | Ident of Tds.info_ast
-  | Deref of affectable
+  | Deref of affectable * typ
 
 (* Expressions existantes dans Rat *)
 (* = expression de AstTds *)

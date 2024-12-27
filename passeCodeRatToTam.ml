@@ -6,7 +6,8 @@ open Code
 type t1 = Ast.AstPlacement.programme
 type t2 = string
 
-let rec analyse_code_affectable a modif = match a with
+(* deref : true si on a déjà effectué un déréférencement, false sinon *)
+let rec analyse_code_affectable a modif deref = match a with
   | AstType.Ident(info) -> 
     begin
       match info_ast_to_info info with
@@ -16,19 +17,20 @@ let rec analyse_code_affectable a modif = match a with
         | InfoConst(_,v) -> Tam.loadl_int v
         | _ -> failwith "Problème dans la passe Tds"
     end
-  | AstType.Deref(aff) -> (*A check quand on fait les pointeurs*)
+  | AstType.Deref(aff,t) -> 
+      let taille = getTaille t in
       let action = 
-        if modif then
-          (Tam.storei 1)
+        if (modif && not deref) then
+          (Tam.storei taille)
         else
-          (Tam.loadi 1)
+          (Tam.loadi taille)
       in
-      (analyse_code_affectable aff true) ^ action
+      (analyse_code_affectable aff modif true) ^ action
 
 (*AstPlacement.expression -> string *)
 let rec analyse_code_expression e = match e with
   | AstType.Affectable(a) ->
-    analyse_code_affectable a false
+    analyse_code_affectable a false false
   | AstType.AppelFonction (info,le) -> 
     (*Récupérer le nom de la fonction*)
     let id = match info_ast_to_info info with
@@ -57,6 +59,17 @@ let rec analyse_code_expression e = match e with
       | EquInt | EquBool -> Tam.subr "IEq"
       | Inf -> Tam.subr "ISub"
       end
+  | AstType.New t ->
+    let taille = getTaille t in
+    Tam.loadl_int taille ^ Tam.subr "MAlloc"
+  | AstType.Adresse ia ->
+    begin
+      match info_ast_to_info ia with
+        | InfoVar(_,_,dep,reg) -> Tam.loada dep reg
+        | _ -> failwith "Problème dans la passe Tds"
+    end
+  | AstType.Null ->
+    Tam.loadl_int 0 (*Null = 0 en mémoire*)
 
 (* AstPlacement.instruction -> String *)
 let rec analyse_code_instruction i = match i with
@@ -68,7 +81,7 @@ let rec analyse_code_instruction i = match i with
           Tam.push (getTaille t) ^ ne ^ Tam.store (getTaille t) dep reg;
         | _ -> failwith "Problème dans la passe Tds"
     end
-  | AstPlacement.Affectation(a,e) -> analyse_code_expression e ^ analyse_code_affectable a true
+  | AstPlacement.Affectation(a,e) -> analyse_code_expression e ^ analyse_code_affectable a true false
   | AstPlacement.TantQue (c,b) -> 
     let nc = analyse_code_expression c in
     let nb = analyse_code_bloc b in

@@ -19,7 +19,7 @@ let rec analyser_type_affectable a = match a with
   | AstTds.Deref(aff) -> 
     begin
         match analyser_type_affectable aff with
-            | (naff, Pointeur(t)) -> (AstType.Deref naff, t)
+            | (naff, Pointeur(t)) -> (AstType.Deref (naff, t), t)
             | (_, t) -> raise (TypeInattendu(t, Pointeur(Undefined)))
 end
 
