@@ -116,4 +116,17 @@ let%test "test12_f_r" =
 let%test "test12_f_i" = 
   test (pathFichiersRat^"test12.rat")  "f" ("i",1)  (-1, "LB")
   
+let%test "testPointeur1_f_a" = 
+  test (pathFichiersRat^"testPointeur1.rat")  "f" ("a",1)  (-1, "LB")
 
+let%test "testPointeur2_f_a" = 
+  test (pathFichiersRat^"testPointeur2.rat")  "f" ("a",1)  (-1, "LB")
+
+let%test "testPointeur3_f_b" = 
+  test (pathFichiersRat^"testPointeur3.rat")  "f" ("b",1)  (-4, "LB")
+    
+let%test "testPointeur3_f_r" = 
+  test (pathFichiersRat^"testPointeur3.rat")  "f" ("r",1)  (-3, "LB")
+    
+let%test "testPointeur3_f_i" = 
+  test (pathFichiersRat^"testPointeur3.rat")  "f" ("i",1)  (-1, "LB")

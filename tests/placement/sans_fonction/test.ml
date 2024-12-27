@@ -146,3 +146,12 @@ let%test "test7_y1" =
     
 let%test "test7_z1" = 
   test (pathFichiersRat^"test7.rat")  "main" ("z1",1)  (7, "SB")
+
+let%test "testPointeur1_x" = 
+  test (pathFichiersRat^"testPointeur1.rat")  "main" ("x",1)  (0, "SB")
+
+let%test "testPointeur2_x" =
+  test (pathFichiersRat^"testPointeur2.rat")  "main" ("x",1)  (0, "SB")
+
+let%test "testPointeur2_y" =
+  test (pathFichiersRat^"testPointeur2.rat")  "main" ("y",1)  (1, "SB")

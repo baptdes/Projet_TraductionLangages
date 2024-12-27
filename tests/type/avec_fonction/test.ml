@@ -136,6 +136,9 @@ try
 with
   | TypeInattendu(Pointeur(Int),Int) -> ()
 
+let%test_unit "testPointeur5" =
+let _ = compiler   (pathFichiersRat^"testPointeur5.rat") in ()
+
 (* Fichiers de tests de la génération de code -> doivent passer la TDS *)
 open Unix
 open Filename

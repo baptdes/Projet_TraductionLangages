@@ -70,6 +70,7 @@ let rec analyse_type_expression e = match e with
     begin
       match info_ast_to_info info with
         | InfoVar (_,t,_,_) -> (AstType.Adresse info, Pointeur(t))
+        | _ -> failwith "Erreur passe Tds"
     end
   | AstTds.New t -> (AstType.New t, Pointeur(t))
   | AstTds.Null -> (AstType.Null, Undefined)
@@ -118,10 +119,10 @@ let rec analyse_type_instruction i =
       begin
       match info_ast_to_info info with
         | InfoFun(_, t, _) -> 
-          if te != t then
-            raise (TypeInattendu (te, t))
-          else
+          if est_compatible t te then
             AstType.Retour(ne, info)
+          else
+            raise (TypeInattendu (te, t))
         | _ -> failwith("Cas impossible")
       end
   | AstTds.Empty -> AstType.Empty
