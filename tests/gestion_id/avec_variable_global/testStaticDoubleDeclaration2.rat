@@ -1,0 +1,7 @@
+static int x = 0;
+int inc (int y){
+}
+main {
+int a = inc (0);
+int x = 5;
+}

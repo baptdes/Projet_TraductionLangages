@@ -97,8 +97,12 @@ struct
   let string_of_fonction (Fonction(t,n,lp,li)) = (string_of_type t)^" "^n^" ("^((List.fold_right (fun (t,n) tq -> (string_of_type t)^" "^n^" "^tq) lp ""))^") = \n"^
                                         ((List.fold_right (fun i tq -> (string_of_instruction i)^tq) li ""))^"\n"
 
+  let string_of_var (Var (t, n, e)) = "Declaration de variable global  : "^(string_of_type t)^" "^n^" = "^(string_of_expression e)^"\n"
+
+
   (* Conversion d'un programme Rat *)
-  let string_of_programme (Programme (fonctions, instruction)) =
+  let string_of_programme (Programme (var, fonctions, instruction)) =
+    (List.fold_right (fun f tq -> (string_of_var f)^tq) var "")^
     (List.fold_right (fun f tq -> (string_of_fonction f)^tq) fonctions "")^
     (List.fold_right (fun i tq -> (string_of_instruction i)^tq) instruction "")
 

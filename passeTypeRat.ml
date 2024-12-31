@@ -143,5 +143,5 @@ let analyse_type_fonctions lf = List.map analyse_type_fonction lf
 (* Vérifie la bonne utilisation des types et tranforme le programme
 en un programme de type AstType.programme *)
 (* Erreur si mauvaise utilisation des types *)
-let analyser (AstTds.Programme (fonctions,prog)) =
+let analyser (AstTds.Programme (var,fonctions,prog)) =
   AstType.Programme(analyse_type_fonctions fonctions, analyse_type_bloc prog)

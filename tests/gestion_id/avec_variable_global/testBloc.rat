@@ -1,0 +1,13 @@
+static int x = 0;
+
+
+main {
+int y = 5;
+if (x < 3){
+    int y = 0;
+  }else{
+    int y = 0;
+  }
+
+
+}

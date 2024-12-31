@@ -87,13 +87,13 @@ let rec analyse_tds_expression tds e = match e with
 (* Vérifie la bonne utilisation des identifiants et tranforme l'instruction
 en une instruction de type AstTds.instruction *)
 (* Erreur si mauvaise utilisation des identifiants *)
-let rec analyse_tds_instruction tdsGlobal tds oia i =
+let rec analyse_tds_instruction tds oia i =
   match i with
   | AstSyntax.Declaration (t, n, e) ->
       begin
-        begin match chercherLocalement tdsGlobal n with 
-        | Some _ -> raise(DoubleDeclaration n)  
-        |  None ->
+        begin match chercherRoot tds n with
+        | Some _ -> raise(DoubleDeclaration n)
+        | None ->    
           match chercherLocalement tds n with
           | None ->
               (* L'identifiant n'est pas trouvé dans la tds locale,
@@ -113,17 +113,17 @@ let rec analyse_tds_instruction tdsGlobal tds oia i =
           | Some _ ->
               (* L'identifiant est trouvé dans la tds locale,
               il a donc déjà été déclaré dans le bloc courant *)
-              raise (DoubleDeclaration n)
-          end 
+              raise (DoubleDeclaration n) 
         end
+      end
   | AstSyntax.Affectation (a,e) -> 
       AstTds.Affectation (analyse_tds_affectable tds a true, analyse_tds_expression tds e)
   | AstSyntax.Constante (n,v) ->
       begin
-        begin 
-          match chercherLocalement tdsGlobal n with 
-         | Some _ -> raise(DoubleDeclaration n)
-         | None ->     
+        begin
+        match chercherGlobalement tds n with 
+        | Some _ -> raise(DoubleDeclaration n)
+        | None ->       
           match chercherLocalement tds n with
           | None ->
             (* L'identifiant n'est pas trouvé dans la tds locale,
@@ -136,8 +136,8 @@ let rec analyse_tds_instruction tdsGlobal tds oia i =
             (* L'identifiant est trouvé dans la tds locale,
             il a donc déjà été déclaré dans le bloc courant *)
             raise (DoubleDeclaration n)
-          end
         end
+      end
   | AstSyntax.Affichage e ->
       (* Vérification de la bonne utilisation des identifiants dans l'expression *)
       (* et obtention de l'expression transformée *)
@@ -181,13 +181,13 @@ let rec analyse_tds_instruction tdsGlobal tds oia i =
 (* Paramètre li : liste d'instructions à analyser *)
 (* Vérifie la bonne utilisation des identifiants et tranforme le bloc en un bloc de type AstTds.bloc *)
 (* Erreur si mauvaise utilisation des identifiants *)
-and analyse_tds_bloc tdsGlobal tds oia li =
+and analyse_tds_bloc tds oia li =
   (* Entrée dans un nouveau bloc, donc création d'une nouvelle tds locale
   pointant sur la table du bloc parent *)
   let tdsbloc = creerTDSFille tds in
   (* Analyse des instructions du bloc avec la tds du nouveau bloc.
      Cette tds est modifiée par effet de bord *)
-   let nli = List.map (analyse_tds_instruction tdsGlobal tdsbloc oia) li in
+   let nli = List.map (analyse_tds_instruction tdsbloc oia) li in
    (* afficher_locale tdsbloc ; *) (* décommenter pour afficher la table locale *)
    nli
 
@@ -198,7 +198,7 @@ and analyse_tds_bloc tdsGlobal tds oia li =
 (* Vérifie la bonne utilisation des identifiants et tranforme la fonction
 en une fonction de type AstTds.fonction *)
 (* Erreur si mauvaise utilisation des identifiants *)
-let analyse_tds_fonction tdsGlobal maintds (AstSyntax.Fonction(t,n,lp,li))  =
+let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li))  =
   match chercherGlobalement maintds n with
   | Some _ -> raise (DoubleDeclaration n)
   | None ->
@@ -220,7 +220,7 @@ let analyse_tds_fonction tdsGlobal maintds (AstSyntax.Fonction(t,n,lp,li))  =
           (typ, info_ast_arg)
       end
     ) lp in
-    let nli = analyse_tds_bloc tdsGlobal tds (Some info_ast_fonction) li in
+    let nli = analyse_tds_bloc tds (Some info_ast_fonction) li in
     AstTds.Fonction(t, info_ast_fonction, nlp, nli)
 
 (* analyser : AstSyntax.programme -> AstTds.programme *)
@@ -230,10 +230,9 @@ en un programme de type AstTds.programme *)
 (* Erreur si mauvaise utilisation des identifiants *)
 let analyser (AstSyntax.Programme (varStatic,fonctions,prog)) =
   let tds = creerTDSMere () in
-  let tdsGlobal = creerTDSMere () in 
-  let nv = List.map(fun AstSyntax.Declaration (t, n, e)->
+  let nv = List.map(fun (AstSyntax.Var (t, n, e))->
     begin
-      match chercherLocalement tdsGlobal n with
+      match chercherLocalement tds n with
       | None ->
           (* L'identifiant n'est pas trouvé dans la tds locale,
           il n'a donc pas été déclaré dans le bloc courant *)
@@ -248,13 +247,13 @@ let analyser (AstSyntax.Programme (varStatic,fonctions,prog)) =
           ajouter tds n ia;
           (* Renvoie de la nouvelle déclaration où le nom a été remplacé par l'information
           et l'expression remplacée par l'expression issue de l'analyse *)
-          AstTds.Declaration (t, ia, ne)
+          AstTds.Var (t, ia, ne)
       | Some _ ->
           (* L'identifiant est trouvé dans la tds locale,
           il a donc déjà été déclaré dans le bloc courant *)
           raise (DoubleDeclaration n)
       end 
     ) varStatic in 
-  let nf = List.map (analyse_tds_fonction tdsGlobal tds) fonctions in
-  let nb = analyse_tds_bloc tdsGlobal tds None prog in
-  AstTds.Programme (nf,nb)
+  let nf = List.map (analyse_tds_fonction tds) fonctions in
+  let nb = analyse_tds_bloc tds None prog in
+  AstTds.Programme (nv,nf,nb)

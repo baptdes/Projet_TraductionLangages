@@ -19,7 +19,7 @@ struct
   type t1 = Ast.AstSyntax.programme
   type t2 = Ast.AstTds.programme
 
-  let analyser _ =  Ast.AstTds.Programme([],[])
+  let analyser _ =  Ast.AstTds.Programme([] ,[],[])
 
 end
 

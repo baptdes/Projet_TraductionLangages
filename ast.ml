@@ -8,6 +8,7 @@ sig
    type fonction
    type programme
    type affectable
+   type var
 end
 
 
@@ -71,9 +72,13 @@ and instruction =
 (* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction *)
 type fonction = Fonction of typ * string * (typ * string) list * bloc
 
+(* Structure des fonctions de Rat *)
+(* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction *)
+type var = Var of typ * string * expression
+
 (* Structure d'un programme Rat *)
 (* liste de fonction - programme principal *)
-type programme = Programme of fonction list * bloc
+type programme = Programme of var list * fonction list * bloc
 
 end
 
@@ -123,7 +128,7 @@ struct
   type fonction = Fonction of typ * Tds.info_ast * (typ * Tds.info_ast ) list * bloc
 
   (* Structure d'une déclaration de variable global *)
-  type var = Var of Tds.info_ast * expression
+  type var = Var of typ * Tds.info_ast * expression 
 
   (* Structure d'un programme dans notre langage *)
   type programme = Programme of var list * fonction list * bloc
