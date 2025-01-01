@@ -120,8 +120,20 @@ let analyse_code_fonction (AstPlacement.Fonction(info,_,bloc)) =
   in
   (Tam.label nom) ^ (analyse_code_bloc bloc) ^ Tam.halt
 
+
+let annalyse_code_var (AstPlacement.Var(info,e)) = 
+  let ne = analyse_code_expression e in
+    begin
+      match info_ast_to_info info with
+        | InfoVar(_,t,dep,reg) -> 
+          Tam.push (getTaille t) ^ ne ^ Tam.store (getTaille t) dep reg;
+        | _ -> failwith "Problème dans la passe Tds"
+    end
+
+
 (* AstPlacement.programme -> String *)
-let analyser (AstPlacement.Programme(fonctions,prog)) = 
+let analyser (AstPlacement.Programme(vars,fonctions,prog)) = 
   let n = Code.getEntete() in
+  let nv = List.fold_left (fun acc i -> acc ^ (annalyse_code_var i)) "" vars in 
   let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
-  n ^ nf ^ Tam.label "main" ^ analyse_code_bloc prog ^ Tam.halt
+  n ^ nf ^ Tam.label "main" ^ nv ^analyse_code_bloc prog ^ Tam.halt

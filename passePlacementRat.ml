@@ -72,8 +72,24 @@ let analyse_placement_fonction (AstType.Fonction(info,lp,li)) =
   let nb = analyse_placement_bloc li 3 "LB" in
   AstPlacement.Fonction(info,lp,nb)
 
+  
+let analyse_placement_var  (AstType.Var (info, e)) depl =
+  begin
+    match info_ast_to_info info with
+      | InfoVar(_,t,_,_) -> modifier_adresse_variable depl "SB" info;
+        (AstPlacement.Var(info,e), getTaille t)
+      | _ -> failwith "La passe Tds est mal faite"
+  end
+let rec analyse_placement_vars vars = 
+  match vars with 
+  | [] -> [],0
+  | t::q ->let (nq,depl) = analyse_placement_vars q  in let (nv,t) = (analyse_placement_var t depl) in nv::(nq),depl+t    
+  
+
+
 (*AstType.programme -> AstPlacement.programme*)
 let analyser (AstType.Programme(vars,fonctions,bloc)) = 
+  let nv,depl = (analyse_placement_vars vars) in
   let nlf = List.map analyse_placement_fonction fonctions in
-  let nb = analyse_placement_bloc bloc 0 "SB" in
-  AstPlacement.Programme(nlf,nb)
+  let nb = analyse_placement_bloc bloc depl "SB" in
+  AstPlacement.Programme(nv,nlf,nb)

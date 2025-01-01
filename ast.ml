@@ -222,7 +222,11 @@ type bloc = instruction list * int (* taille du bloc *)
 (* Plus besoin de la liste des paramètres mais on la garde pour les tests du placements mémoire *)
 type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 
+(* informations associées à l'identificateur (dont son nom), liste de variable globale, info, expression de la variable *)
+(* Plus besoin de la liste des paramètres mais on la garde pour les tests du placements mémoire *)
+type var = Var of Tds.info_ast * expression
+
 (* Structure d'un programme dans notre langage *)
-type programme = Programme of fonction list * bloc
+type programme = Programme of var list * fonction list * bloc
 
 end

@@ -1,0 +1,6 @@
+static int x = 0;
+
+main{
+    bool y = true;
+    int z = x;
+} 

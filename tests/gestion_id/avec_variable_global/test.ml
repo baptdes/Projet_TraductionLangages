@@ -57,3 +57,11 @@ let%test_unit "testIDnonDeclarer" =
   
 let%test_unit "testType1" = 
   let _ = compiler (pathFichiersRat^"testType1.rat") in ()
+
+
+let%test_unit "testTypeInatendu" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testTypeInatendu.rat")
+    in raise ErreurNonDetectee
+  with
+  | TypeInattendu(Bool,Int) -> () 
