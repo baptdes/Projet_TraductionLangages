@@ -1,0 +1,10 @@
+static bool b = true;
+
+main {
+int y = 5;
+if (b){
+    int y = 0;
+  }else{
+    int y = 0;
+  }
+}

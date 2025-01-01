@@ -8,7 +8,8 @@ open Type
 type t1 = Ast.AstTds.programme
 type t2 = Ast.AstType.programme
 
-let rec analyser_type_affectable a = match a with
+let rec analyser_type_affectable a = 
+  match a with
   | AstTds.Ident(info) -> 
     begin
         match info_ast_to_info info with
@@ -138,10 +139,23 @@ let analyse_type_fonction (AstTds.Fonction(t,info,lp,bloc)) =
 
 let analyse_type_fonctions lf = List.map analyse_type_fonction lf
 
+
+let analyse_type_var (AstTds.Var (t, info, e)) = 
+  let (me,te) = analyse_type_expression e in 
+  if est_compatible t te then
+    (modifier_type_variable t info;
+    AstType.Var (info, me))
+  else
+    raise (TypeInattendu (te, t))
+
+let annalyse_type_vars lv = List.map analyse_type_var lv
+
 (* analyser : AstType.programme -> AstType.programme *)
 (* Paramètre : le programme à analyser *)
 (* Vérifie la bonne utilisation des types et tranforme le programme
 en un programme de type AstType.programme *)
 (* Erreur si mauvaise utilisation des types *)
 let analyser (AstTds.Programme (var,fonctions,prog)) =
-  AstType.Programme(analyse_type_fonctions fonctions, analyse_type_bloc prog)
+  let nv = annalyse_type_vars var in
+  
+  AstType.Programme(nv,analyse_type_fonctions fonctions, analyse_type_bloc prog)

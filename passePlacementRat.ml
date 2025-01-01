@@ -73,7 +73,7 @@ let analyse_placement_fonction (AstType.Fonction(info,lp,li)) =
   AstPlacement.Fonction(info,lp,nb)
 
 (*AstType.programme -> AstPlacement.programme*)
-let analyser (AstType.Programme(fonctions,bloc)) = 
+let analyser (AstType.Programme(vars,fonctions,bloc)) = 
   let nlf = List.map analyse_placement_fonction fonctions in
   let nb = analyse_placement_bloc bloc 0 "SB" in
   AstPlacement.Programme(nlf,nb)

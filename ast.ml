@@ -184,8 +184,11 @@ type bloc = instruction list
 (* informations associées à l'identificateur (dont son nom), liste des paramètres, corps *)
 type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 
+(* information associées à l'identificateur (dont son nom), son type, expression*)
+type var = Var of Tds.info_ast * expression
+
 (* Structure d'un programme dans notre langage *)
-type programme = Programme of fonction list * bloc
+type programme = Programme of var list * fonction list * bloc
 
 end
 

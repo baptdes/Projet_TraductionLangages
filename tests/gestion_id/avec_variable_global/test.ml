@@ -45,3 +45,15 @@ let%test_unit "testDoubleDeclarationBloc" =
 
 let%test_unit "testBloc" = 
   let _ = compiler (pathFichiersRat^"testBloc.rat") in ()
+
+
+let%test_unit "testIDnonDeclarer" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testIDnonDeclarer.rat")
+    in raise ErreurNonDetectee
+  with
+  | IdentifiantNonDeclare("x") -> () 
+  
+  
+let%test_unit "testType1" = 
+  let _ = compiler (pathFichiersRat^"testType1.rat") in ()
