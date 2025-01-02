@@ -37,6 +37,11 @@ let%expect_test "testPrintInt" =
   runtam (pathFichiersRat^"testPrintInt.rat");
   [%expect{| 5 |}]
 
-  let%expect_test "testPrintInt2" =
+let%expect_test "testPrintInt2" =
   runtam (pathFichiersRat^"testPrintInt2.rat");
   [%expect{| 13574 |}]
+
+
+let%expect_test "testPrintIntFonction" =
+  runtam (pathFichiersRat^"testPrintIntFonction.rat");
+  [%expect{| 8 |}]

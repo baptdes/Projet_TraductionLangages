@@ -65,3 +65,8 @@ let%test_unit "testTypeInatendu" =
     in raise ErreurNonDetectee
   with
   | TypeInattendu(Bool,Int) -> () 
+
+
+
+let%test_unit "testPrintIntFonction" = 
+  let _ = compiler (pathFichiersRat^"testPrintIntFonction.rat") in ()

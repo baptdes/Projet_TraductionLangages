@@ -64,9 +64,11 @@ and instruction =
   (* Conditionnelle représentée par la condition, le bloc then et le bloc else *)
   | Conditionnelle of expression * bloc * bloc
   (*Boucle TantQue représentée par la conditin d'arrêt de la boucle et le bloc d'instructions *)
-  | TantQue of expression * bloc
+  | TantQue of expression * bloc 
   (* return d'une fonction *)
   | Retour of expression
+  (* variable static d'une fonction *)
+  | Static of typ * string * expression 
 
 (* Structure des fonctions de Rat *)
 (* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction *)
@@ -120,6 +122,7 @@ struct
     | Conditionnelle of expression * bloc * bloc
     | TantQue of expression * bloc
     | Retour of expression * Tds.info_ast  (* les informations sur la fonction à laquelle est associé le retour *)
+    | Static of typ * Tds.info_ast * expression * Tds.info_ast (* les information de la variable static *) 
     | Empty (* les nœuds ayant disparus: Const *)
 
 
@@ -179,6 +182,7 @@ type bloc = instruction list
   | Conditionnelle of expression * bloc * bloc
   | TantQue of expression * bloc
   | Retour of expression * Tds.info_ast
+  | Static of Tds.info_ast * expression * Tds.info_ast 
   | Empty (* les nœuds ayant disparus: Const *)
 
 (* informations associées à l'identificateur (dont son nom), liste des paramètres, corps *)
@@ -227,6 +231,6 @@ type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 type var = Var of Tds.info_ast * expression
 
 (* Structure d'un programme dans notre langage *)
-type programme = Programme of var list * fonction list * bloc
+type programme = Programme of (var list * int ) * fonction list * bloc
 
 end

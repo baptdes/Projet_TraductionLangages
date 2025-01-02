@@ -132,8 +132,9 @@ let annalyse_code_var (AstPlacement.Var(info,e)) =
 
 
 (* AstPlacement.programme -> String *)
-let analyser (AstPlacement.Programme(vars,fonctions,prog)) = 
+let analyser (AstPlacement.Programme((vars,depl),fonctions,prog)) = 
   let n = Code.getEntete() in
   let nv = List.fold_left (fun acc i -> acc ^ (annalyse_code_var i)) "" vars in 
   let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
-  n ^ nf ^ Tam.label "main" ^ nv ^analyse_code_bloc prog ^ Tam.halt
+  let (np,nt) = prog in  
+  n ^ nf ^ Tam.label "main" ^ nv ^ analyse_code_bloc (np, nt + depl ) ^ Tam.halt

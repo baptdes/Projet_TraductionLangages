@@ -92,4 +92,4 @@ let analyser (AstType.Programme(vars,fonctions,bloc)) =
   let nv,depl = (analyse_placement_vars vars) in
   let nlf = List.map analyse_placement_fonction fonctions in
   let nb = analyse_placement_bloc bloc depl "SB" in
-  AstPlacement.Programme(nv,nlf,nb)
+  AstPlacement.Programme((nv,depl),nlf,nb)

@@ -126,6 +126,13 @@ let rec analyse_type_instruction i =
             raise (TypeInattendu (te, t))
         | _ -> failwith("Cas impossible")
       end
+  | AstTds.Static(t, info, e ,info_f) -> 
+    let (ne, te) = analyse_type_expression e in
+    if est_compatible t te then
+      ( modifier_type_variable t info;
+      AstType.Static(info , ne , info_f))
+    else
+      raise (TypeInattendu (te, t))
   | AstTds.Empty -> AstType.Empty
 and analyse_type_bloc li = List.map analyse_type_instruction li
 

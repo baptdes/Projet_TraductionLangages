@@ -43,7 +43,7 @@ struct
   type t1 = Ast.AstType.programme
   type t2 = Ast.AstPlacement.programme
 
-  let analyser _ = Ast.AstPlacement.Programme([],[],([],0))
+  let analyser _ = Ast.AstPlacement.Programme(([],0),[],([],0))
 
 end
 

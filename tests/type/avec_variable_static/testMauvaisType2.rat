@@ -1,0 +1,9 @@
+int f () {
+static int i = 0;
+bool b = true;
+i = b;
+return i;
+}
+main{
+print (f ());
+}

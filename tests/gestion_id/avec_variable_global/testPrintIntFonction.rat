@@ -1,0 +1,13 @@
+static int x = 5;
+
+
+int f (int a) {
+    return (3 + x);
+}
+
+
+main{
+    int y = 3;
+    int z = f(y);
+    print z;
+} 
