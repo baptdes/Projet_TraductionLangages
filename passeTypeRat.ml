@@ -28,7 +28,7 @@ let rec analyse_type_expression e = match e with
   | AstTds.AppelFonction (info, le) -> 
     begin
       match info_ast_to_info info with
-        | InfoFun (_, tr, tp) -> 
+        | InfoFun (_, tr, tp,_,_) -> 
           let l = List.map analyse_type_expression le in
           let np = List.map fst l in
           let ntp = List.map snd l in
@@ -119,7 +119,7 @@ let rec analyse_type_instruction i =
     let (ne, te) = analyse_type_expression e in
       begin
       match info_ast_to_info info with
-        | InfoFun(_, t, _) -> 
+        | InfoFun(_, t, _,_,_) -> 
           if est_compatible t te then
             AstType.Retour(ne, info)
           else

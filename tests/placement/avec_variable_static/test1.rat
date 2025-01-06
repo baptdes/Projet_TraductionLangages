@@ -1,8 +1,6 @@
 int f () {
 int y = 0;
-static int i = 0 ;
-i = (i+1);
-return i;
+return y;
 }
 main{
 int z = 0;

@@ -220,6 +220,7 @@ type bloc = instruction list * int (* taille du bloc *)
  | Conditionnelle of expression * bloc * bloc
  | TantQue of expression * bloc
  | Retour of expression * int * int (* taille du retour et taille des paramètres *)
+ | Static of Tds.info_ast * expression * Tds.info_ast 
  | Empty (* les nœuds ayant disparus: Const *)
 
 (* informations associées à l'identificateur (dont son nom), liste de paramètres, corps, expression de retour *)

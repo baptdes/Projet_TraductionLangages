@@ -235,7 +235,7 @@ let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li))  =
   | Some _ -> raise (DoubleDeclaration n)
   | None ->
     (*Gestion de la déclaration de la fonction*)
-    let info = InfoFun (n, t, List.map fst lp) in
+    let info = InfoFun (n, t, List.map fst lp, [], true) in
     let info_ast_fonction = info_to_info_ast info in
     ajouter maintds n info_ast_fonction;
 

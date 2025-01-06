@@ -38,24 +38,31 @@ let test fichier fonction (var,occ) (dep,registre) =
 (** Chemin d'accès aux fichiers de test *)
 (****************************************)
 
-let pathFichiersRat = "../../../../../tests/placement/avec_variable_globale/"
+let pathFichiersRat = "../../../../../tests/placement/avec_variable_static/"
 
 (**********)
 (*  TESTS *)
 (**********)
-
-(*deplacement par rapport à la variable i qui est de 0*)
-let%test "test1_i" = 
-  test (pathFichiersRat^"test1.rat")  "f" ("i",1)  (1,"SB")
 
 
 (*deplacement par rapport à la variable z qui est de 1*)
 let%test "test1_z" = 
   test (pathFichiersRat^"test1.rat")  "main" ("z",1)  (0,"SB")
 
+
+(*deplacement par rapport à la variable i qui est de 0*)
+let%test "test1_i" = 
+  test (pathFichiersRat^"test1.rat")  "f" ("i",1)  (1,"SB")
+
+
 (*deplacement par rapport à la variable y qui est de 1*)
 let%test "test1_y" = 
   test (pathFichiersRat^"test1.rat")  "f" ("y",1)  (0,"LB")
+
+
+(*deplacement par rapport à la variable z qui est de 1*)
+let%test "testSujet_p" = 
+  test (pathFichiersRat^"testSujet.rat")  "main" ("p",1)  (1,"SB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
 let%test "testSujet_y" = 

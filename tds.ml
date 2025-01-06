@@ -302,7 +302,7 @@ let string_of_info info =
   match info with
   | InfoConst (n,value) -> "Constante "^n^" : "^(string_of_int value)
   | InfoVar (n,t,dep,base) -> "Variable "^n^" : "^(string_of_type t)^" "^(string_of_int dep)^"["^base^"]"
-  | InfoFun (n,t,tp) -> "Fonction "^n^" : "^(List.fold_right (fun elt tq -> if tq = "" then (string_of_type elt) else (string_of_type elt)^" * "^tq) tp "" )^
+  | InfoFun (n,t,tp,_,_) -> "Fonction "^n^" : "^(List.fold_right (fun elt tq -> if tq = "" then (string_of_type elt) else (string_of_type elt)^" * "^tq) tp "" )^
                       " -> "^(string_of_type t)
 
 (* Affiche la tds locale *)
@@ -327,6 +327,17 @@ let modifier_type_variable t i =
     | InfoVar (n,_,dep,base) -> i:= InfoVar (n,t,dep,base)
     | _ -> failwith "Appel modifier_type_variable pas sur un InfoVar"
 
+let modifier_var_static infoVar i =
+    match !i with
+    | InfoFun (n,t,tp,lv,b) -> i:= InfoFun (n,t,tp,infoVar::lv,b)
+    | _ -> failwith "Appel modifier_var_static pas sur un InfoFun"
+
+
+let modifier_bool_fun b i =
+    match !i with
+    | InfoFun (n,t,tp,lv,_) -> i:= InfoFun (n,t,tp,lv,b)
+    | _ -> failwith "Appel modifier_bool_fun pas sur un InfoFun"
+
 let%test _ = 
   let info = InfoVar ("x", Undefined, 4 , "SB") in
   let ia = info_to_info_ast info in
@@ -338,15 +349,15 @@ let%test _ =
 (* Modifie les types de retour et des paramètres si c'est une InfoFun, ne fait rien sinon *)
 let modifier_type_fonction t tp i =
        match !i with
-       | InfoFun(n,_,_) -> i:= InfoFun(n,t,tp)
+       | InfoFun(n,_,_,lv,b) -> i:= InfoFun(n,t,tp,lv,b)
        | _ -> failwith "Appel modifier_type_fonction pas sur un InfoFun"
 
 let%test _ = 
-  let info = InfoFun ("f", Undefined, []) in
+  let info = InfoFun ("f", Undefined, [], [], false) in
   let ia = info_to_info_ast info in
   modifier_type_fonction Rat [Int ; Int] ia;
   match info_ast_to_info ia with
-  | InfoFun ("f", Rat, [Int ; Int]) -> true
+  | InfoFun ("f", Rat, [Int ; Int], [], false) -> true
   | _ -> false
  
 (* Modifie l'emplacement (dépl, registre) si c'est une InfoVar, ne fait rien sinon *)
