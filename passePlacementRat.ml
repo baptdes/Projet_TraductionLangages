@@ -8,24 +8,17 @@ type t1 = Ast.AstType.programme
 type t2 = Ast.AstPlacement.programme
 
 let analyse_placement_variable_statique (info_fun) depl reg = 
-  
-  match info_fun with 
+  match info_ast_to_info info_fun with 
   | InfoFun(_,_,_,lv,b) ->
       if b then 
         let taille = List.fold_left (fun acc infoVar -> 
-                   
                     modifier_adresse_variable depl reg (info_to_info_ast infoVar);
-
-                   
                     match infoVar with
                         | InfoVar(_,t,_,_) -> acc + getTaille t
                         | InfoConst _ -> failwith "erreur analyse placement"
                         | InfoFun _ -> failwith "erreur analyse placement" ) 0 lv in                                                                                                    
-        
-        print_endline "ici";
-        modifier_bool_fun false (info_to_info_ast info_fun);
-        match info_fun with
-          | InfoFun(_,_,_,_,b) -> print_endline (string_of_bool b);
+      
+        modifier_bool_fun false info_fun;
                         taille
       else  
         0 
@@ -38,7 +31,7 @@ let analyse_placement_variable_statique (info_fun) depl reg =
 (* Paramètre reg : le registre courant *)
 (* Renvoie l'instruction i avec les déplacements mémoire mis à jour *)
 let analyse_placement_expression i depl reg = match i with 
-    | AstType.AppelFonction(info,_) -> analyse_placement_variable_statique (info_ast_to_info info) depl reg
+    | AstType.AppelFonction(info,_) -> analyse_placement_variable_statique info depl reg
     | _ -> 0
 
 (* AstType.instruction -> int -> string -> AstPlacement.instruction * int *)

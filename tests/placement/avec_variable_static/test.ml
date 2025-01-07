@@ -7,10 +7,10 @@ let getListeDep ratfile =
   let input = open_in ratfile in
   let filebuf = Lexing.from_channel input in
   try
-  let ast = Parser.main Lexer.token filebuf in
-  let past = CompilateurRat.calculer_placement ast in
-  let listeAdresses = VerifPlacement.analyser past in
-  listeAdresses
+    let ast = Parser.main Lexer.token filebuf in
+    let past = CompilateurRat.calculer_placement ast in
+    let listeAdresses = VerifPlacement.analyser past in
+    listeAdresses
   with
   | Lexer.Error _ as e ->
       report_error ratfile filebuf "lexical error (unexpected character).";
@@ -46,24 +46,25 @@ let pathFichiersRat = "../../../../../tests/placement/avec_variable_static/"
 
 
 (*deplacement par rapport à la variable z qui est de 1*)
-let%test "test1_z" = 
-  test (pathFichiersRat^"test1.rat")  "main" ("z",1)  (0,"SB")
-
-
-(*deplacement par rapport à la variable i qui est de 0*)
-let%test "test1_i" = 
-  test (pathFichiersRat^"test1.rat")  "f" ("i",1)  (1,"SB")
-
-
-(*deplacement par rapport à la variable y qui est de 1*)
 let%test "test1_y" = 
-  test (pathFichiersRat^"test1.rat")  "f" ("y",1)  (0,"LB")
+  test (pathFichiersRat^"testSujet.rat")  "f" ("y",1)  (0,"LB")
 
+(*deplacement par rapport à la variable z qui est de 1*)
+let%test "test1_z" = 
+  test (pathFichiersRat^"testSujet.rat")  "main" ("z",1)  (1,"SB")
+
+(*deplacement par rapport à la variable z qui est de 1*)
+let%test "test1_i" = 
+  test (pathFichiersRat^"testSujet.rat")  "f" ("i",1)  (0,"SB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
 let%test "testSujet_p" = 
-  test (pathFichiersRat^"testSujet.rat")  "main" ("p",1)  (1,"SB")
+  test (pathFichiersRat^"testSujet.rat")  "main" ("p",1)  (2,"SB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
-let%test "testSujet_y" = 
+let%test "testSujet_i" = 
   test (pathFichiersRat^"testSujet.rat")  "f" ("i",1)  (0,"SB")
+
+(*deplacement par rapport à la variable z qui est de 1*)
+let%test "testSujet_z" = 
+  test (pathFichiersRat^"testSujet.rat")  "main" ("z",1)  (1,"SB")

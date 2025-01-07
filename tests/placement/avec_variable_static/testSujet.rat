@@ -5,6 +5,7 @@ return i;
 }
 main{
 print (f ());
+int z = 0;
 print (f ());
 int p = 0 ;
 print (f ());

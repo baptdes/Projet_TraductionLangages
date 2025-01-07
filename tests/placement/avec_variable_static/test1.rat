@@ -1,9 +1,12 @@
-int f () {
-int y = 0;
-return y;
+int f (int a) {
+    static i = 0:
+    int y = 0;
+    i=(i+1)
+    return i;
 }
-main{
-int z = 0;
-print (f ());
-print(f())
+
+
+main {
+    int z = 0;
+    print(f(z));
 }
