@@ -27,16 +27,37 @@ let rec analyse_code_affectable a modif deref = match a with
       in
       (analyse_code_affectable aff modif true) ^ action
 
+
+let analyse_code_var_statique dep = 
+    Tam.loada dep "SB"
+
+
+let analyse_code_var_statiques info lv b = 
+  if b == true then
+    begin
+    modifier_bool_fun false info;  
+    let nv = List.fold_left (fun acc i -> acc ^ (analyse_code_var_statique i)) "" lv in nv
+    end
+  else ""
+   
+
 (*AstPlacement.expression -> string *)
 let rec analyse_code_expression e = match e with
   | AstType.Affectable(a) ->
     analyse_code_affectable a false false
   | AstType.AppelFonction (info,le) -> 
+    (*Récupration des variables statiques au première appel*)
+    let nv = match info_ast_to_info info with
+      | InfoFun(_,_,_,lv,b) -> 
+        analyse_code_var_statiques info lv b 
+      | _ -> failwith "Problème dans la passe Tds"
+      in 
     (*Récupérer le nom de la fonction*)
     let id = match info_ast_to_info info with
-      | InfoFun(id,_,_,_,_) -> id
+      | InfoFun(id,_,_,_,_) -> 
+            id
       | _ -> failwith "Problème dans la passe Tds"
-    in
+      in nv ^
     (List.fold_right (fun t acc -> (analyse_code_expression t) ^ acc) le "") ^ (Tam.call "SB" id)
   | AstType.Booleen b -> Tam.loadl_int (if b then 1 else 0)
   | AstType.Entier i -> Tam.loadl_int i
@@ -106,6 +127,7 @@ let rec analyse_code_instruction i = match i with
     let ne = analyse_code_expression e in
     ne ^ Tam.subr "BOut"
   | AstPlacement.Empty -> ""
+  | AstPlacement.Static _ -> ""
 
 (* AstPlacement.bloc -> String *)
 and analyse_code_bloc (li,taille) = 
@@ -132,9 +154,10 @@ let annalyse_code_var (AstPlacement.Var(info,e)) =
 
 
 (* AstPlacement.programme -> String *)
-let analyser (AstPlacement.Programme((vars,depl),fonctions,prog)) = 
+let analyser (AstPlacement.Programme((vars,depl),(fonctions,deplVarStatic),prog)) = 
   let n = Code.getEntete() in
   let nv = List.fold_left (fun acc i -> acc ^ (annalyse_code_var i)) "" vars in 
+  let nvs = Tam.push (deplVarStatic)in
   let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
   let (np,nt) = prog in  
-  n ^ nf ^ Tam.label "main" ^ nv ^ analyse_code_bloc (np, nt + depl ) ^ Tam.halt
+  n ^ nf ^ Tam.label "main" ^ nv ^ nvs ^  analyse_code_bloc (np, nt + depl ) ^ Tam.halt

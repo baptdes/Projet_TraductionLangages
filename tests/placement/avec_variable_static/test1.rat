@@ -1,7 +1,9 @@
 int f (int a) {
-    static i = 0:
     int y = 0;
-    i=(i+1)
+    int b = 0;
+    static int i = 0 ;
+    
+    i=(i+1);
     return i;
 }
 
@@ -9,4 +11,7 @@ int f (int a) {
 main {
     int z = 0;
     print(f(z));
+    int p = 5;
+    print(f(z));
+    int x = 3;
 }

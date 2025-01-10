@@ -7,32 +7,8 @@ open Type
 type t1 = Ast.AstType.programme
 type t2 = Ast.AstPlacement.programme
 
-let analyse_placement_variable_statique (info_fun) depl reg = 
-  match info_ast_to_info info_fun with 
-  | InfoFun(_,_,_,lv,b) ->
-      if b then 
-        let taille = List.fold_left (fun acc infoVar -> 
-                    modifier_adresse_variable depl reg (info_to_info_ast infoVar);
-                    match infoVar with
-                        | InfoVar(_,t,_,_) -> acc + getTaille t
-                        | InfoConst _ -> failwith "erreur analyse placement"
-                        | InfoFun _ -> failwith "erreur analyse placement" ) 0 lv in                                                                                                    
-      
-        modifier_bool_fun false info_fun;
-                        taille
-      else  
-        0 
-      
-  | _ -> failwith "erreur anaylse placement"
 
-(* AstType.expression -> int -> string -> AstPlacement.expression * int *)
-(* Paramètre i : l'instruction à analyser *)
-(* Paramètre depl : le déplacement courant *)
-(* Paramètre reg : le registre courant *)
-(* Renvoie l'instruction i avec les déplacements mémoire mis à jour *)
-let analyse_placement_expression i depl reg = match i with 
-    | AstType.AppelFonction(info,_) -> analyse_placement_variable_statique info depl reg
-    | _ -> 0
+
 
 (* AstType.instruction -> int -> string -> AstPlacement.instruction * int *)
 (* Paramètre i : l'instruction à analyser *)
@@ -42,11 +18,10 @@ let analyse_placement_expression i depl reg = match i with
 let rec analyse_placement_instruction i depl reg = 
   match i with
   | AstType.Declaration (info,e) -> 
-    let taille = analyse_placement_expression e depl reg in 
     begin
       match info_ast_to_info info with
-        | InfoVar(_,t,_,_) -> modifier_adresse_variable (depl+taille) reg info;
-          (AstPlacement.Declaration(info,e), taille + getTaille t)
+        | InfoVar(_,t,_,_) -> modifier_adresse_variable (depl) reg info;
+          (AstPlacement.Declaration(info,e),getTaille t)
         | _ -> failwith "La passe Tds est mal faite"
     end
   | AstType.Conditionnelle (c,t,e) -> 
@@ -57,22 +32,20 @@ let rec analyse_placement_instruction i depl reg =
     let nb = analyse_placement_bloc b depl reg in
     (AstPlacement.TantQue(c,nb), 0)
   | AstType.Retour (e,ia) -> 
-    let taille = analyse_placement_expression e depl reg in
     begin
       match info_ast_to_info ia with
         | InfoFun(_,t,lpt,_,_) -> 
             let tailleParametre = List.fold_left (fun acc t -> acc + getTaille t) 0 lpt in
-            AstPlacement.Retour(e, taille + getTaille t, tailleParametre), 0
+            AstPlacement.Retour(e, getTaille t, tailleParametre), 0
         | _ -> failwith "La passe Tds est mal faite"
     end
-  | AstType.Affectation (ia,e) -> let taille = analyse_placement_expression e depl reg in (AstPlacement.Affectation(ia,e), taille)
-  | AstType.AffichageInt e -> let taille = analyse_placement_expression e depl reg in (AstPlacement.AffichageInt e, taille)
-  | AstType.AffichageRat e -> let taille = analyse_placement_expression e depl reg in (AstPlacement.AffichageRat e, taille)
-  | AstType.AffichageBool e -> let taille = analyse_placement_expression e depl reg in (AstPlacement.AffichageBool e, taille)
-  | AstType.Static(info, e, info_fun)  -> modifier_var_static (info_ast_to_info info) (info_fun);   (AstPlacement.Static(info, e, info_fun),0)                      
+  | AstType.Affectation (ia,e) -> (AstPlacement.Affectation(ia,e), 0)
+  | AstType.AffichageInt e -> (AstPlacement.AffichageInt e, 0)
+  | AstType.AffichageRat e -> (AstPlacement.AffichageRat e, 0)
+  | AstType.AffichageBool e -> (AstPlacement.AffichageBool e, 0)
+  | AstType.Static(_, _, _)  -> (AstPlacement.Empty,0)                      
   | AstType.Empty -> (AstPlacement.Empty, 0)
   
-
 (* AstType.bloc -> int -> string -> AstPlacement.bloc * int *)
 (* Paramètre li : le bloc à analyser *)
 (* Paramètre depl : le déplacement courant *)
@@ -84,9 +57,25 @@ and analyse_placement_bloc li depml reg = match li with
             let (nq,tq) = analyse_placement_bloc q (depml + ti) reg in
             (ni::nq, ti + tq)
 
+let annalyse_instr_var_static i depl = 
+  match i with
+    | AstType.Static(info, _, info_fun) -> 
+      modifier_adresse_variable depl "SB" info;
+      begin
+      match info_ast_to_info info with 
+        | InfoVar(_,t,_,_) ->
+        modifier_var_static (getTaille t) (info_fun);
+        | _ -> failwith "erreur "
+      end;
+      begin
+          match info_ast_to_info info with 
+        | InfoVar(_,t,_,_) -> getTaille t
+        | _ -> failwith "erreur annlayse variables statiques"
+      end
+    | _ -> 0
 
-(*AstType.fonction -> AstPlacement.fonction*)
-let analyse_placement_fonction (AstType.Fonction(info,lp,li)) = 
+(*AstType.fonction -> AstPlacement.fonction * int*)
+let analyse_placement_fonction (AstType.Fonction(info,lp,li)) depl = 
   let rec placer_parametres lp depl = match lp with
     |[] -> ()
     |tInfo::q -> 
@@ -100,8 +89,9 @@ let analyse_placement_fonction (AstType.Fonction(info,lp,li)) =
       end
   in
   placer_parametres (List.rev lp) 0;
-  let nb = analyse_placement_bloc li 3 "LB" in
-  AstPlacement.Fonction(info,lp,nb)
+  let deplf = List.fold_left (fun acc i -> acc + (annalyse_instr_var_static i acc)) depl li in
+  let nb = analyse_placement_bloc li 3 "LB"  in
+  (AstPlacement.Fonction(info,lp,nb),deplf)
 
   
 let analyse_placement_var  (AstType.Var (info, e)) depl =
@@ -122,7 +112,11 @@ let rec analyse_placement_vars vars =
 
 (*AstType.programme -> AstPlacement.programme*)
 let analyser (AstType.Programme(vars,fonctions,bloc)) = 
-  let nv,depl = (analyse_placement_vars vars) in (* le déplacement pour ajouté les variables globales à l'avance *)
-  let nlf = List.map analyse_placement_fonction fonctions in
-  let nb = analyse_placement_bloc bloc depl "SB" in
-  AstPlacement.Programme((nv,depl),nlf,nb)
+  let nv,deplv = (analyse_placement_vars vars) in (* le déplacement pour ajouté les variables globales à l'avance *)
+  let nlf,depTotal = List.fold_left(fun acc i -> 
+    let f,accdep = acc in
+    let nf,depl = (analyse_placement_fonction i accdep) in 
+    nf::f,(accdep+depl)) ([],deplv) fonctions 
+  in
+  let nb = analyse_placement_bloc bloc (depTotal+deplv) "SB" in
+  AstPlacement.Programme((nv,deplv),(nlf,depTotal),nb)

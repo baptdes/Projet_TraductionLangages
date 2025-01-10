@@ -44,27 +44,31 @@ let pathFichiersRat = "../../../../../tests/placement/avec_variable_static/"
 (*  TESTS *)
 (**********)
 
+(*deplacement par rapport à la variable z qui est de 1*)
+let%test "testSujet_z" = 
+  test (pathFichiersRat^"testSujet.rat")  "main" ("z",1)  (1,"SB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
-let%test "test1_y" = 
-  test (pathFichiersRat^"testSujet.rat")  "f" ("y",1)  (0,"LB")
+let%test "testSujet_x" = 
+  test (pathFichiersRat^"testSujet.rat")  "main" ("x",1)  (2,"SB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
 let%test "test1_z" = 
   test (pathFichiersRat^"testSujet.rat")  "main" ("z",1)  (1,"SB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
-let%test "test1_i" = 
-  test (pathFichiersRat^"testSujet.rat")  "f" ("i",1)  (0,"SB")
+let%test "test1_y" = 
+  test (pathFichiersRat^"test1.rat")  "f" ("y",1)  (3,"LB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
-let%test "testSujet_p" = 
-  test (pathFichiersRat^"testSujet.rat")  "main" ("p",1)  (2,"SB")
+let%test "test1_p" = 
+  test (pathFichiersRat^"test1.rat")  "main" ("p",1)  (2,"SB")
 
 (*deplacement par rapport à la variable z qui est de 1*)
-let%test "testSujet_i" = 
-  test (pathFichiersRat^"testSujet.rat")  "f" ("i",1)  (0,"SB")
+let%test "test1_b" = 
+  test (pathFichiersRat^"test1.rat")  "f" ("b",1)  (4,"LB")
+
 
 (*deplacement par rapport à la variable z qui est de 1*)
-let%test "testSujet_z" = 
-  test (pathFichiersRat^"testSujet.rat")  "main" ("z",1)  (1,"SB")
+let%test "test1_x" = 
+  test (pathFichiersRat^"test1.rat")  "main" ("x",1)  (3,"SB")

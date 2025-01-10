@@ -232,6 +232,6 @@ type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 type var = Var of Tds.info_ast * expression
 
 (* Structure d'un programme dans notre langage *)
-type programme = Programme of (var list * int ) * fonction list * bloc
+type programme = Programme of (var list * int ) * (fonction list * int) * bloc
 
 end

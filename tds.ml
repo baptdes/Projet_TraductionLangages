@@ -5,7 +5,7 @@ open Type
 type info =
   | InfoConst of string * int
   | InfoVar of string * typ * int * string
-  | InfoFun of string * typ * typ list * info list * bool (* les variables statiques et est ce qu'elles ont été déclarer *)
+  | InfoFun of string * typ * typ list * int list * bool (* les variables statiques et est ce qu'elles ont été déclarer *)
 
 (* Données stockées dans la tds  et dans les AST : pointeur sur une information *)
 type info_ast = info ref  
@@ -327,9 +327,9 @@ let modifier_type_variable t i =
     | InfoVar (n,_,dep,base) -> i:= InfoVar (n,t,dep,base)
     | _ -> failwith "Appel modifier_type_variable pas sur un InfoVar"
 
-let modifier_var_static infoVar i =
+let modifier_var_static depl i =
     match !i with
-    | InfoFun (n,t,tp,lv,b) -> i:= InfoFun (n,t,tp,infoVar::lv,b)
+    | InfoFun (n,t,tp,lv,b) -> i:= InfoFun (n,t,tp,depl::lv,b)
     | _ -> failwith "Appel modifier_var_static pas sur un InfoFun"
 
 
