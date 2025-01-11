@@ -57,25 +57,40 @@ and analyse_placement_bloc li depml reg = match li with
             let (nq,tq) = analyse_placement_bloc q (depml + ti) reg in
             (ni::nq, ti + tq)
 
-let annalyse_instr_var_static i depl = 
+(* AstType.instruction -> int -> int *)
+(* Paramètre i : l'instruction à analyser *)
+(* Paramètre deplLB : le déplacement courant de LB*)
+(* Paramère deplSB : le déplacement courant de SB*)
+let analyse_placement_instruction_fonction i deplLB deplSB = 
   match i with
-    | AstType.Static(info, _, info_fun) -> 
-      modifier_adresse_variable depl "SB" info;
-      begin
-      match info_ast_to_info info with 
-        | InfoVar(_,t,_,_) ->
-        modifier_var_static (getTaille t) (info_fun);
-        | _ -> failwith "erreur "
-      end;
-      begin
+    (* Cas des variables statiques *)
+    | AstType.Static(info, e, info_fun) -> 
+        modifier_adresse_variable deplSB "SB" info;
+        begin
           match info_ast_to_info info with 
-        | InfoVar(_,t,_,_) -> getTaille t
-        | _ -> failwith "erreur annlayse variables statiques"
-      end
-    | _ -> 0
+            | InfoVar(_,t,_,_) -> 
+              modifier_var_static (getTaille t) (info_fun);
+              (AstPlacement.Static(info, e, info_fun), 0), getTaille t
+            | _ -> failwith "La passe Tds est mal faite"
+        end
+    | _ -> analyse_placement_instruction i deplLB "LB", 0
+
+let rec analyse_placement_bloc_fonction li deplLB deplSB =
+  match li with
+      | [] -> ([], 0), ([],0)
+      | h::q ->
+        (* Analyse de la 1ère instruction*)
+        let ((i, tailleLB), tailleSB) = analyse_placement_instruction_fonction h deplLB deplSB in
+        let ((li, tailleActuelleLB),(lstatic, tailleActuelleSB)) = analyse_placement_bloc_fonction q (deplLB + tailleLB) (deplSB + tailleSB) in
+
+        if tailleSB <> 0 then
+          ((li, tailleLB + tailleActuelleLB), (i::lstatic, tailleSB + tailleActuelleSB))
+        else
+          ((i::li, tailleLB + tailleActuelleLB), (lstatic, tailleSB + tailleActuelleSB))
 
 (*AstType.fonction -> AstPlacement.fonction * int*)
-let analyse_placement_fonction (AstType.Fonction(info,lp,li)) depl = 
+let analyse_placement_fonction (AstType.Fonction(info,lp,li)) deplSB = 
+  (* Placement des paramètres *)
   let rec placer_parametres lp depl = match lp with
     |[] -> ()
     |tInfo::q -> 
@@ -89,34 +104,43 @@ let analyse_placement_fonction (AstType.Fonction(info,lp,li)) depl =
       end
   in
   placer_parametres (List.rev lp) 0;
-  let deplf = List.fold_left (fun acc i -> acc + (annalyse_instr_var_static i acc)) depl li in
-  let nb = analyse_placement_bloc li 3 "LB"  in
-  (AstPlacement.Fonction(info,lp,nb),deplf)
+  let (bloc,(lv,deplSB)) = analyse_placement_bloc_fonction li 3 deplSB in
+  AstPlacement.Fonction(info,lp,bloc), deplSB, lv
 
-  
+
+(*AstType.var -> int -> AstPlacement.var * int*)
+(* Paramètre AstType.var : Variable à analyser *)
+(* Paramètre depl : le déplacement courant *)
+(* Renvoie la variable e avec le déplacement mémoire mis à jour *)
 let analyse_placement_var  (AstType.Var (info, e)) depl =
-  begin
-    match info_ast_to_info info with
-      | InfoVar(_,t,_,_) -> modifier_adresse_variable depl "SB" info;
-        (AstPlacement.Var(info,e), getTaille t)
-      | _ -> failwith "La passe Tds est mal faite"
-  end
+  match info_ast_to_info info with
+    | InfoVar(_,t,_,_) -> modifier_adresse_variable depl "SB" info;
+      (AstPlacement.Var(info,e), getTaille t)
+    | _ -> failwith "La passe Tds est mal faite"
 
 
+(*AstType.var list -> AstPlacement.var list * int*)
+(* Paramètre vars : Variables globales à analyser *)
+(* Renvoie la liste des variables globales avec le déplacement totale lié à ses variables *)
 let rec analyse_placement_vars vars = 
-  match vars with 
+  match vars with
   | [] -> [],0
-  | t::q ->let (nq,depl) = analyse_placement_vars q  in let (nv,t) = (analyse_placement_var t depl) in nv::(nq),depl+t    
-  
+  | t::q -> 
+    let (nq,depl) = analyse_placement_vars q in
+    let (nv,t) = (analyse_placement_var t depl) in
+    nv::(nq), depl+t
 
 
 (*AstType.programme -> AstPlacement.programme*)
 let analyser (AstType.Programme(vars,fonctions,bloc)) = 
-  let nv,deplv = (analyse_placement_vars vars) in (* le déplacement pour ajouté les variables globales à l'avance *)
-  let nlf,depTotal = List.fold_left(fun acc i -> 
-    let f,accdep = acc in
-    let nf,depl = (analyse_placement_fonction i accdep) in 
-    nf::f,(accdep+depl)) ([],deplv) fonctions 
+  (* Analyse des variables globales pour connaitre leurs déplacements *)
+  let nv,deplv = (analyse_placement_vars vars) in
+  (* Analyse des fonctions pour connaitre le déplacement lié leurs variables statiques*)
+  let nlf,depTotal,lv = List.fold_left(fun acc i -> 
+    let f,accdep,nlv = acc in
+    let nf,depl,lv = (analyse_placement_fonction i accdep) in 
+    nf::f,(accdep+depl),nlv@lv) ([],deplv,[]) fonctions
   in
-  let nb = analyse_placement_bloc bloc (depTotal+deplv) "SB" in
-  AstPlacement.Programme((nv,deplv),(nlf,depTotal),nb)
+  (* Décalage du bloc en fonction de la place que prennent les variables globales et statiques*)
+  let nb = analyse_placement_bloc bloc depTotal "SB" in
+  AstPlacement.Programme((nv,deplv),(nlf,depTotal),nb,lv)

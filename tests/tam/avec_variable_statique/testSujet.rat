@@ -1,5 +1,5 @@
 int f () {
-static int i = 0 ;
+static int i = 5 ;
 i = (i+1);
 return i;
 }

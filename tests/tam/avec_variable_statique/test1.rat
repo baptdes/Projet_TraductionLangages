@@ -1,0 +1,9 @@
+rat f () {
+static rat i = [2/5] ;
+i = (i+[1/1]);
+return i;
+}
+main{
+print (f ());
+print (f ());
+}

@@ -35,5 +35,17 @@ let pathFichiersRat = "../../../../../tests/tam/avec_variable_statique/"
 
 let%expect_test "testSujet" =
   runtam (pathFichiersRat^"testSujet.rat");
-  [%expect{| 1234 |}]
+  [%expect{| 6789 |}]
+
+let%expect_test "test1" =
+  runtam (pathFichiersRat^"test1.rat");
+  [%expect{| [7/5][12/5] |}]
+
+let%expect_test "test2" =
+  runtam (pathFichiersRat^"test2.rat");
+  [%expect{| truefalsetrue |}]
+
+let%expect_test "test3" =
+  runtam (pathFichiersRat^"test3.rat");
+  [%expect{| [1/2][7/16] |}]
 

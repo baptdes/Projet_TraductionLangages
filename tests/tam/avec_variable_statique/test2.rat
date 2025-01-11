@@ -1,0 +1,15 @@
+bool f () {
+static bool b = true ;
+if b {
+    b = false;
+    return true;
+} else {
+    b = true;
+    return false;
+}
+}
+main{
+print (f ());
+print (f ());
+print (f ());
+}

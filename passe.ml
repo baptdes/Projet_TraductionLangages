@@ -43,7 +43,7 @@ struct
   type t1 = Ast.AstType.programme
   type t2 = Ast.AstPlacement.programme
 
-  let analyser _ = Ast.AstPlacement.Programme(([],0),([],0),([],0))
+  let analyser _ = Ast.AstPlacement.Programme(([],0),([],0),([],0),[])
 
 end
 
@@ -96,7 +96,7 @@ let analyser_param info =
     | _ -> failwith "Internal error"
 
   (* Renvoie la suite des adresses des variables déclarées dans les fonctions et dans le programme principal *)
-  let analyser (Ast.AstPlacement.Programme (vars,(fonctions,_), (prog,_))) =
+  let analyser (Ast.AstPlacement.Programme (_,(fonctions,_), (prog,_), _)) =
     ("main", List.flatten (List.map (analyser_instruction) prog))::(List.flatten (List.map (analyser_fonction) fonctions))
 
 end

@@ -74,8 +74,8 @@ and instruction =
 (* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction *)
 type fonction = Fonction of typ * string * (typ * string) list * bloc
 
-(* Structure des fonctions de Rat *)
-(* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction *)
+(* Structure des variables globales de Rat *)
+(* type - nom - expression *)
 type var = Var of typ * string * expression
 
 (* Structure d'un programme Rat *)
@@ -188,7 +188,7 @@ type bloc = instruction list
 (* informations associées à l'identificateur (dont son nom), liste des paramètres, corps *)
 type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 
-(* information associées à l'identificateur (dont son nom), son type, expression*)
+(* information associées à l'identificateur (dont son nom), expression*)
 type var = Var of Tds.info_ast * expression
 
 (* Structure d'un programme dans notre langage *)
@@ -227,11 +227,10 @@ type bloc = instruction list * int (* taille du bloc *)
 (* Plus besoin de la liste des paramètres mais on la garde pour les tests du placements mémoire *)
 type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 
-(* informations associées à l'identificateur (dont son nom), liste de variable globale, info, expression de la variable *)
-(* Plus besoin de la liste des paramètres mais on la garde pour les tests du placements mémoire *)
+(* informations associées à l'identificateur (dont son nom), expression de la variable *)
 type var = Var of Tds.info_ast * expression
 
 (* Structure d'un programme dans notre langage *)
-type programme = Programme of (var list * int ) * (fonction list * int) * bloc
+type programme = Programme of (var list * int ) * (fonction list * int) * bloc * instruction list
 
 end

@@ -1,0 +1,7 @@
+static int a = 0;
+static rat b = [1/2];
+
+main{
+    bool y = true;
+    int z = a;
+} 
