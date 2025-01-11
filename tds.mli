@@ -8,7 +8,7 @@ type info =
   son type, et son adresse ie son déplacement (int) par rapport à un registre (string) *)
   | InfoVar of string * typ * int * string
   (* Information associée à une fonction : son nom (utile pour l'appel), son type de retour et la liste des types des paramètres *)
-  | InfoFun of string * typ * typ list * int list * bool
+  | InfoFun of string * typ * typ list
 
 (* Table des symboles *)
 type tds 
@@ -62,10 +62,6 @@ val modifier_type_variable : typ -> info_ast -> unit
 
 (* Modifie les types de retour et des paramètres si c'est une InfoFun, ne fait rien sinon *)
 val modifier_type_fonction : typ -> typ list -> info_ast -> unit
-
-val modifier_var_static : int -> info_ast -> unit
-
-val modifier_bool_fun : bool -> info_ast -> unit
 
 (* Modifie l'emplacement (dépl, registre) si c'est une InfoVar, ne fait rien sinon *)
 val modifier_adresse_variable : int -> string -> info_ast -> unit

@@ -122,7 +122,7 @@ struct
     | Conditionnelle of expression * bloc * bloc
     | TantQue of expression * bloc
     | Retour of expression * Tds.info_ast  (* les informations sur la fonction à laquelle est associé le retour *)
-    | Static of typ * Tds.info_ast * expression * Tds.info_ast (* les information de la variable static *) 
+    | Static of typ * Tds.info_ast * expression (* les information de la variable static *) 
     | Empty (* les nœuds ayant disparus: Const *)
 
 
@@ -182,7 +182,7 @@ type bloc = instruction list
   | Conditionnelle of expression * bloc * bloc
   | TantQue of expression * bloc
   | Retour of expression * Tds.info_ast
-  | Static of Tds.info_ast * expression * Tds.info_ast 
+  | Static of Tds.info_ast * expression
   | Empty (* les nœuds ayant disparus: Const *)
 
 (* informations associées à l'identificateur (dont son nom), liste des paramètres, corps *)
@@ -220,7 +220,7 @@ type bloc = instruction list * int (* taille du bloc *)
  | Conditionnelle of expression * bloc * bloc
  | TantQue of expression * bloc
  | Retour of expression * int * int (* taille du retour et taille des paramètres *)
- | Static of Tds.info_ast * expression * Tds.info_ast 
+ | Static of Tds.info_ast * expression
  | Empty (* les nœuds ayant disparus: Const *)
 
 (* informations associées à l'identificateur (dont son nom), liste de paramètres, corps, expression de retour *)

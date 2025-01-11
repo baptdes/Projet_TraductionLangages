@@ -191,7 +191,7 @@ let rec analyse_tds_instruction tds oia i =
                   let info = InfoVar (n,Undefined, 0, "") in
                   let iap = info_to_info_ast info in
                   ajouter tds n iap;
-                  AstTds.Static (t, iap, ne, ia)
+                  AstTds.Static (t, iap, ne)
               | Some _ ->
                   raise (DoubleDeclaration n)
             end
@@ -228,7 +228,7 @@ let analyse_tds_fonction maintds (AstSyntax.Fonction(t,n,lp,li))  =
   | Some _ -> raise (DoubleDeclaration n)
   | None ->
     (*Gestion de la déclaration de la fonction*)
-    let info = InfoFun (n, t, List.map fst lp, [], true) in
+    let info = InfoFun (n, t, List.map fst lp) in
     let info_ast_fonction = info_to_info_ast info in
     ajouter maintds n info_ast_fonction;
 

@@ -1,5 +1,5 @@
 rat f () {
-static int i = 5 ;
+static int i = 5;
 static int j = 8;
 i = (i+1);
 j = (j+4);

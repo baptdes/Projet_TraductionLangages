@@ -34,7 +34,7 @@ let rec analyse_placement_instruction i depl reg =
   | AstType.Retour (e,ia) -> 
     begin
       match info_ast_to_info ia with
-        | InfoFun(_,t,lpt,_,_) -> 
+        | InfoFun(_,t,lpt) -> 
             let tailleParametre = List.fold_left (fun acc t -> acc + getTaille t) 0 lpt in
             AstPlacement.Retour(e, getTaille t, tailleParametre), 0
         | _ -> failwith "La passe Tds est mal faite"
@@ -43,7 +43,7 @@ let rec analyse_placement_instruction i depl reg =
   | AstType.AffichageInt e -> (AstPlacement.AffichageInt e, 0)
   | AstType.AffichageRat e -> (AstPlacement.AffichageRat e, 0)
   | AstType.AffichageBool e -> (AstPlacement.AffichageBool e, 0)
-  | AstType.Static(_, _, _)  -> (AstPlacement.Empty,0)                      
+  | AstType.Static(_, _)  -> (AstPlacement.Empty,0)                      
   | AstType.Empty -> (AstPlacement.Empty, 0)
   
 (* AstType.bloc -> int -> string -> AstPlacement.bloc * int *)
@@ -64,13 +64,12 @@ and analyse_placement_bloc li depml reg = match li with
 let analyse_placement_instruction_fonction i deplLB deplSB = 
   match i with
     (* Cas des variables statiques *)
-    | AstType.Static(info, e, info_fun) -> 
+    | AstType.Static(info, e) -> 
         modifier_adresse_variable deplSB "SB" info;
         begin
           match info_ast_to_info info with 
             | InfoVar(_,t,_,_) -> 
-              modifier_var_static (getTaille t) (info_fun);
-              (AstPlacement.Static(info, e, info_fun), 0), getTaille t
+              (AstPlacement.Static(info, e), 0), getTaille t
             | _ -> failwith "La passe Tds est mal faite"
         end
     | _ -> analyse_placement_instruction i deplLB "LB", 0

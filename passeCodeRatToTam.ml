@@ -34,7 +34,7 @@ let rec analyse_code_expression e = match e with
   | AstType.AppelFonction (info,le) -> 
     (* Récupérer le nom de la fonction*)
     let id = match info_ast_to_info info with
-      | InfoFun(id,_,_,_,_) -> 
+      | InfoFun(id,_,_) -> 
             id
       | _ -> failwith "Problème dans la passe Tds"
       in (List.fold_right (fun t acc -> (analyse_code_expression t) ^ acc) le "") ^ (Tam.call "SB" id)
@@ -116,7 +116,7 @@ and analyse_code_bloc (li,taille) =
 
 let analyse_code_static i = 
   match i with
-    | AstPlacement.Static(info,e,_) ->
+    | AstPlacement.Static(info,e) ->
       let ne = analyse_code_expression e in
       begin
         match info_ast_to_info info with
@@ -129,7 +129,7 @@ let analyse_code_static i =
 (* AstPlacement.fonction -> String *)
 let analyse_code_fonction (AstPlacement.Fonction(info,_,bloc)) = 
   let nom = match info_ast_to_info info with
-    | InfoFun(id,_,_,_,_) -> id
+    | InfoFun(id,_,_) -> id
     | _ -> failwith "Problème dans la passe Tds"
   in
   (Tam.label nom) ^ (analyse_code_bloc bloc) ^ Tam.halt
