@@ -1,0 +1,6 @@
+int f (rat a = 2) {
+    return a;
+}
+main{
+print (f (5));
+}

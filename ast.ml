@@ -50,6 +50,8 @@ type expression =
   (* NULL *)
   | Null
 
+type defaut = Defaut of expression
+
 (* Instructions de Rat *)
 type bloc = instruction list
 and instruction =
@@ -72,7 +74,7 @@ and instruction =
 
 (* Structure des fonctions de Rat *)
 (* type de retour - nom - liste des paramètres (association type et nom) - corps de la fonction *)
-type fonction = Fonction of typ * string * (typ * string) list * bloc
+type fonction = Fonction of typ * string * (typ * string * defaut option) list * bloc
 
 (* Structure des variables globales de Rat *)
 (* type - nom - expression *)

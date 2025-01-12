@@ -1,0 +1,8 @@
+rat g (int a, rat b=[2/3]){
+    return b;
+}
+
+main{
+    print (g(2));
+    print (g(2,[1/2]));
+}

@@ -17,3 +17,6 @@ exception RetourDansMain
 
 (* Utilisation illégale d'une déclaration static *)
 exception StaticHorsFonction
+
+(* Placement illégale d'un paramètre par défault *)
+exception ParametreDefautNonDernier of string

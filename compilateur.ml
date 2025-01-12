@@ -56,7 +56,6 @@ end
 (* + passe de génération de code -> compilateur complet *)
 module CompilateurRat = Compilateur (PasseTdsRat) (PasseTypeRat) (PassePlacementRat) (PasseCodeRatToTam)
 
-
 open Lexing
 
 
