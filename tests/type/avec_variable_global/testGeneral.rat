@@ -1,0 +1,19 @@
+static int max = 0;
+
+int update(int v){
+    if(max<v){
+    max = v;
+  }else{
+  }
+    
+    return max;
+} 
+
+
+main{
+    int z = update(5);
+    z = update(10);
+    z = update(3);
+    z = update(20);
+    print max;
+}  

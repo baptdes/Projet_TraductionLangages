@@ -1,0 +1,7 @@
+int * f (int * b, rat r, int i) {
+    return b;
+}
+
+
+main {
+}

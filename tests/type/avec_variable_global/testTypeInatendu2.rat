@@ -1,0 +1,8 @@
+static int x = 5;
+int f (bool y){
+} 
+
+main {
+print f(x);
+
+}

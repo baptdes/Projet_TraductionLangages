@@ -1,0 +1,15 @@
+int swap (int * x, int * y){
+  int temp = *x;
+  *x = *y;
+  *y = temp;
+  return 0;
+}
+
+test{
+   int x = 5;
+   int y = 6;
+
+   int z = swap(&x,&y);
+
+   print(y);
+}

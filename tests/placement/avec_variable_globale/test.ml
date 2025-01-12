@@ -44,13 +44,19 @@ let pathFichiersRat = "../../../../../tests/placement/avec_variable_globale/"
 (*  TESTS *)
 (**********)
 
-(*deplacement par rapport à la variable x qui est de 1*)
 let%test "test1_x" = 
   test (pathFichiersRat^"test1.rat")  "main" ("y",1)  (1,"SB")
 
-(*deplacement par rapport aux variables a et b qui est de 3*)
 let%test "test2_y" = 
   test (pathFichiersRat^"test2.rat")  "main" ("y",1)  (3,"SB")
 
 let%test "test2_z" = 
   test (pathFichiersRat^"test2.rat")  "main" ("z",1)  (4,"SB")
+
+let%test "testGeneral_z" = 
+  test (pathFichiersRat^"testGeneral.rat")  "main" ("z",1)  (1,"SB")
+
+let%test "testSujet_a" = 
+  test (pathFichiersRat^"testSujet.rat")  "main" ("a",1)  (1,"SB")
+
+

@@ -1,0 +1,6 @@
+int * testfonc (int * x){
+  return x;
+}
+
+test{
+}

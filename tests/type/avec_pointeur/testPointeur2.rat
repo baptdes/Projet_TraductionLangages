@@ -1,0 +1,10 @@
+int add (int * x, int y){
+  int val_x = * x;
+  * x = (val_x + y);
+  return *x;
+}
+
+test{
+   int x = 6;
+   print add (x, 5);
+}

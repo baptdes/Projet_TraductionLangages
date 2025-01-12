@@ -25,7 +25,22 @@ let%test_unit "testTypeInatendu" =
   with
   | TypeInattendu(Bool,Int) -> () 
 
+let%test_unit "testTypeInatendu2" = 
+  try 
+    let _ = compiler (pathFichiersRat^"testTypeInatendu2.rat")
+    in raise ErreurNonDetectee
+  with
+  | TypesParametresInattendus([Bool] ,[Int] ) -> () 
+
 
 
 let%test_unit "testPrintIntFonction" = 
   let _ = compiler (pathFichiersRat^"testPrintIntFonction.rat") in ()
+
+
+let%test_unit "testSujet" = 
+  let _ = compiler (pathFichiersRat^"testSujet.rat") in ()
+
+
+let%test_unit "testGeneral" = 
+  let _ = compiler (pathFichiersRat^"testGeneral.rat") in ()

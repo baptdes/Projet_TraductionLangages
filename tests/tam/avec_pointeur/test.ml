@@ -25,27 +25,26 @@ let runtam ratfile =
 (** Chemin d'accès aux fichiers de test *)
 (****************************************)
 
-let pathFichiersRat = "../../../../../tests/tam/avec_variable_globale/"
+let pathFichiersRat = "../../../../../tests/tam/avec_pointeur/"
 
 (**********)
 (*  TESTS *)
 (**********)
 
-(* requires ppx_expect in jbuild, and `opam install ppx_expect` *)
 
-let%expect_test "testPrintInt" =
-  runtam (pathFichiersRat^"testPrintInt.rat");
-  [%expect{| 5 |}]
+let%expect_test "testPointeur1" =
+  runtam (pathFichiersRat^"testPointeur1.rat");
+  [%expect{| 99 |}]
 
-let%expect_test "testPrintInt2" =
-  runtam (pathFichiersRat^"testPrintInt2.rat");
-  [%expect{| 13574 |}]
-
-
-let%expect_test "testPrintIntFonction" =
-  runtam (pathFichiersRat^"testPrintIntFonction.rat");
-  [%expect{| 8 |}]
 
 let%expect_test "testGeneral" =
   runtam (pathFichiersRat^"testGeneral.rat");
-  [%expect{| 20 |}]
+  [%expect{| 5 |}]
+
+let%expect_test "testSujet" =
+  runtam (pathFichiersRat^"testSujet.rat");
+  [%expect{| 423 |}]
+
+let%expect_test "testUtilisationPointeur1" =
+  runtam (pathFichiersRat^"testUtilisationPointeur1.rat");
+  [%expect{| 9 |}]
