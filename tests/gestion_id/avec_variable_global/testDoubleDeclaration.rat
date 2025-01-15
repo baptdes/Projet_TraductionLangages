@@ -1,14 +1,16 @@
 static int x = 0;
 
+static int x = 2;
+
 
 main {
 int y = 5;
 if (x < 3){
     int y = 0;
     int x = 5;
-  }else{
+}else{
     int y = 0;
-  }
+}
 
 
 }

@@ -105,30 +105,26 @@ let rec analyse_tds_instruction tds oia i (tds_main, dico_defaut) =
   match i with
   | AstSyntax.Declaration (t, n, e) ->
       begin
-        begin match chercherRoot tds n with
-        | Some _ -> raise(DoubleDeclaration n)
-        | None ->    
-          match chercherLocalement tds n with
-          | None ->
-              (* L'identifiant n'est pas trouvé dans la tds locale,
-              il n'a donc pas été déclaré dans le bloc courant *)
-              (* Vérification de la bonne utilisation des identifiants dans l'expression *)
-              (* et obtention de l'expression transformée *)
-              let ne = analyse_tds_expression tds e (tds_main, dico_defaut) in
-              (* Création de l'information associée à l'identfiant *)
-              let info = InfoVar (n,Undefined, 0, "") in
-              (* Création du pointeur sur l'information *)
-              let ia = info_to_info_ast info in
-              (* Ajout de l'information (pointeur) dans la tds *)
-              ajouter tds n ia;
-              (* Renvoie de la nouvelle déclaration où le nom a été remplacé par l'information
-              et l'expression remplacée par l'expression issue de l'analyse *)
-              AstTds.Declaration (t, ia, ne)
-          | Some _ ->
-              (* L'identifiant est trouvé dans la tds locale,
-              il a donc déjà été déclaré dans le bloc courant *)
-              raise (DoubleDeclaration n) 
-        end
+        match chercherLocalement tds n with
+        | None ->
+            (* L'identifiant n'est pas trouvé dans la tds locale,
+            il n'a donc pas été déclaré dans le bloc courant *)
+            (* Vérification de la bonne utilisation des identifiants dans l'expression *)
+            (* et obtention de l'expression transformée *)
+            let ne = analyse_tds_expression tds e (tds_main, dico_defaut) in
+            (* Création de l'information associée à l'identfiant *)
+            let info = InfoVar (n,Undefined, 0, "") in
+            (* Création du pointeur sur l'information *)
+            let ia = info_to_info_ast info in
+            (* Ajout de l'information (pointeur) dans la tds *)
+            ajouter tds n ia;
+            (* Renvoie de la nouvelle déclaration où le nom a été remplacé par l'information
+            et l'expression remplacée par l'expression issue de l'analyse *)
+            AstTds.Declaration (t, ia, ne)
+        | Some _ ->
+            (* L'identifiant est trouvé dans la tds locale,
+            il a donc déjà été déclaré dans le bloc courant *)
+            raise (DoubleDeclaration n)
       end
   | AstSyntax.Affectation (a,e) -> 
       AstTds.Affectation (analyse_tds_affectable tds a true, analyse_tds_expression tds e (tds_main, dico_defaut))
@@ -194,21 +190,18 @@ let rec analyse_tds_instruction tds oia i (tds_main, dico_defaut) =
       | None -> raise StaticHorsFonction
         (* Il y a une information -> la variable statique est dans une fonction *)
       | Some _ ->
-        begin 
-        match chercherRoot tds n with
-          | Some _ -> raise(DoubleDeclaration n)
-          | None -> 
-            begin
-              match chercherLocalement tds n with
-              | None ->
-                  let ne = analyse_tds_expression tds e (tds_main, dico_defaut) in
-                  let info = InfoVar (n,Undefined, 0, "") in
-                  let iap = info_to_info_ast info in
-                  ajouter tds n iap;
-                  AstTds.Static (t, iap, ne)
-              | Some _ ->
-                  raise (DoubleDeclaration n)
-            end
+        begin
+          match chercherLocalement tds n with
+          | None ->
+              (* On autorise seulement les literaux et les variables globales dans les variables static locale comme dans le langage C*)
+              (* Ainsi, on analyse l'expression seulement dans la tds_main où il y a les variables globales*)
+              let ne = analyse_tds_expression tds_main e (tds_main, dico_defaut) in
+              let info = InfoVar (n,Undefined, 0, "") in
+              let iap = info_to_info_ast info in
+              ajouter tds n iap;
+              AstTds.Static (t, iap, ne)
+          | Some _ ->
+              raise (DoubleDeclaration n)
         end
     end
 

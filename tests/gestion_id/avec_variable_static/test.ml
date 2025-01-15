@@ -35,3 +35,13 @@ let%test_unit "testStaticHorsFonction" =
 
 let%test_unit "testSansErreur" = 
   let _ = compiler (pathFichiersRat^"testSansErreur.rat") in ()
+
+let%test_unit "testXGlobale" = 
+  let _ = compiler (pathFichiersRat^"testXGlobale.rat") in ()
+
+let%test_unit "testNonLiteral" =
+  try 
+    let _ = compiler (pathFichiersRat^"testNonLiteral.rat")
+    in raise ErreurNonDetectee
+  with
+  | IdentifiantNonDeclare "a" -> ()

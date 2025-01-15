@@ -1,0 +1,8 @@
+int f () {
+int a = 5;
+static int i = a;
+return i;
+}
+main{
+print (f ());
+}

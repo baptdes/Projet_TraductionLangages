@@ -36,3 +36,7 @@ let pathFichiersRat = "../../../../../tests/tam/integration/"
 let%expect_test "testSujet" =
   runtam (pathFichiersRat^"testSujet.rat");
   [%expect{| 457810 |}]
+
+let%expect_test "testSujetSameName" =
+  runtam (pathFichiersRat^"testSujetSameName.rat");
+  [%expect{| 457810 |}]

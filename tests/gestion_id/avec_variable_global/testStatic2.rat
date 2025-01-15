@@ -1,6 +1,5 @@
-static int x = 0;
-int inc (int y){
-}
+static int x = 5;
+
 main {
-int a = inc (0);
+    print x;
 }
