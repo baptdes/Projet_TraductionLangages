@@ -133,7 +133,7 @@ struct
   type fonction = Fonction of typ * Tds.info_ast * (typ * Tds.info_ast ) list * bloc
 
   (* Structure d'une déclaration de variable global *)
-  type var = Var of typ * Tds.info_ast * expression 
+  type var = Var of typ * Tds.info_ast * expression
 
   (* Structure d'un programme dans notre langage *)
   type programme = Programme of var list * fonction list * bloc
@@ -190,7 +190,7 @@ type bloc = instruction list
 (* informations associées à l'identificateur (dont son nom), liste des paramètres, corps *)
 type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 
-(* information associées à l'identificateur (dont son nom), expression*)
+(* Structure d'une déclaration de variable global *)
 type var = Var of Tds.info_ast * expression
 
 (* Structure d'un programme dans notre langage *)
@@ -229,10 +229,10 @@ type bloc = instruction list * int (* taille du bloc *)
 (* Plus besoin de la liste des paramètres mais on la garde pour les tests du placements mémoire *)
 type fonction = Fonction of Tds.info_ast * Tds.info_ast list * bloc
 
-(* informations associées à l'identificateur (dont son nom), expression de la variable *)
+(* Structure d'une déclaration de variable global *)
 type var = Var of Tds.info_ast * expression
 
 (* Structure d'un programme dans notre langage *)
-type programme = Programme of (var list * int ) * (fonction list * int) * bloc * instruction list
+type programme = Programme of (var list * int ) * (fonction list) * bloc * instruction list
 
 end

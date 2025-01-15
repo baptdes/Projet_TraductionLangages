@@ -6,7 +6,12 @@ open Code
 type t1 = Ast.AstPlacement.programme
 type t2 = string
 
-(* deref : true si on a déjà effectué un déréférencement, false sinon *)
+(* AstPlacement.affectable -> bool -> bool -> string *)
+(* a : l'affectable à analyser *)
+(* modif : true si l'affectable doit être modifié et false sinon *)
+(* deref : true si l'affectable est une déréférence, false sinon *)
+(* deref est là pour éviter de déréférencer à l'infini et s'arrêté au bout de la 1ère fois*)
+(* Renvoie le code Tam correspondant à l'affectable en entrée *)
 let rec analyse_code_affectable a modif deref = match a with
   | AstType.Ident(info) -> 
     begin
@@ -113,7 +118,9 @@ and analyse_code_bloc (li,taille) =
   Tam.push taille ^
   List.fold_left (fun acc i -> acc ^ analyse_code_instruction i) "" li ^ (Tam.pop 0 taille)
 
-
+(* AstPlacement.Instruction -> String *)
+(* Analyse les instructions des variables statiques des fonctions pour les initialiser *)
+(* Renvoie le code associé à leur initialisation *)
 let analyse_code_static i = 
   match i with
     | AstPlacement.Static(info,e) ->
@@ -134,6 +141,7 @@ let analyse_code_fonction (AstPlacement.Fonction(info,_,bloc)) =
   in
   (Tam.label nom) ^ (analyse_code_bloc bloc) ^ Tam.halt
 
+(* AstPlacement.var -> String *)
 let analyse_code_var (AstPlacement.Var(info,e)) = 
   let ne = analyse_code_expression e in
     begin
@@ -145,10 +153,14 @@ let analyse_code_var (AstPlacement.Var(info,e)) =
 
 
 (* AstPlacement.programme -> String *)
-let analyser (AstPlacement.Programme((vars,depl),(fonctions,deplVarStatic),prog,lvs)) = 
+(* Renvoie le code Tam du programme en entrée *)
+let analyser (AstPlacement.Programme((vars,depl),fonctions,prog,lvs)) = 
   let n = Code.getEntete() in
+  (* Initialisation des variables globales *)
   let nv = List.fold_left (fun acc i -> acc ^ (analyse_code_var i)) "" vars in 
+  (* Analyse des fonctions *)
   let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
+  (* Initialisation des variables statiques des fonctions (comme on connait déjà leurs valeurs, on les initialise dès le début)*)
   let nlvs = List.fold_left (fun acc i -> acc ^ (analyse_code_static i)) "" lvs in
   let (np,nt) = prog in  
   n ^ nf ^ Tam.label "main" ^ nv ^ nlvs ^ analyse_code_bloc (np, nt + depl ) ^ Tam.halt

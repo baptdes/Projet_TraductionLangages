@@ -1,0 +1,7 @@
+static int* i = (new int);
+
+int f () {
+    static int* b = (new int);
+}
+main{
+}

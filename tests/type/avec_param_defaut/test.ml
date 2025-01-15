@@ -34,4 +34,7 @@ let%test_unit "testMauvaisNombre2" =
     let _ = compiler (pathFichiersRat^"testMauvaisNombre2.rat")
     in raise ErreurNonDetectee
   with
-  | TypesParametresInattendus _  -> ()  
+  | TypesParametresInattendus _  -> ()
+
+let%test_unit "testSimple" = 
+  let _ = compiler (pathFichiersRat^"testSimple.rat") in ()

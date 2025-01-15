@@ -1,0 +1,7 @@
+int f() {
+    static int * x = (new int);
+}
+
+main{
+    print (f ());
+}

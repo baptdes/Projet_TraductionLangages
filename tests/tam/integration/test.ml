@@ -40,3 +40,7 @@ let%expect_test "testSujet" =
 let%expect_test "testSujetSameName" =
   runtam (pathFichiersRat^"testSujetSameName.rat");
   [%expect{| 457810 |}]
+
+let%expect_test "testSujetModif" =
+  runtam (pathFichiersRat^"testSujetModif.rat");
+  [%expect{| 813162021 |}]

@@ -8,6 +8,10 @@ open Type
 type t1 = Ast.AstTds.programme
 type t2 = Ast.AstType.programme
 
+(* analyser_type_affectable : AstTds.affectable -> AstType.affectable * typ *)
+(* Paramètre a : l'affectable à analyser *)
+(* Renvoie l'affectable de type AstType.affectable et son type *)
+(* Erreur si mauvaise utilisation des types *)
 let rec analyser_type_affectable a = 
   match a with
   | AstTds.Ident(info) -> 
@@ -15,7 +19,7 @@ let rec analyser_type_affectable a =
         match info_ast_to_info info with
             | InfoVar (_,t,_,_) -> (AstType.Ident info, t)
             | InfoConst _ -> (AstType.Ident info, Int)
-            | _ -> failwith "Erreur"
+            | _ -> failwith "Erreur passe Tds"
     end
   | AstTds.Deref(aff) -> 
     begin
@@ -24,6 +28,10 @@ let rec analyser_type_affectable a =
             | (_, t) -> raise (TypeInattendu(t, Pointeur(Undefined)))
 end
 
+(*analyse_type_expression : AstTds.expression -> AstType.expression * typ *)
+(* Paramètre e : l'expression à analyser *)
+(* Renvoie l'expression de type AstType.expression et son type *)
+(* Erreur si mauvaise utilisation des types *)
 let rec analyse_type_expression e = match e with
   | AstTds.AppelFonction (info, le) -> 
     begin
@@ -76,6 +84,10 @@ let rec analyse_type_expression e = match e with
   | AstTds.New t -> (AstType.New t, Pointeur(t))
   | AstTds.Null -> (AstType.Null, Undefined)
 
+(*analyse_type_instruction : AstTds.instruction -> AstType.instruction *)
+(* Paramètre i : l'instruction à analyser *)
+(* Renvoie l'instruction de type AstType.instruction *)
+(* Erreur si mauvaise utilisation des types *)
 let rec analyse_type_instruction i = 
   match i with
   | AstTds.Declaration (t, info, e) -> 
@@ -134,9 +146,17 @@ let rec analyse_type_instruction i =
     else
       raise (TypeInattendu (te, t))
   | AstTds.Empty -> AstType.Empty
+
+(*analyse_type_bloc : AstTds.bloc -> AstType.bloc*)
+(* Paramètre b : le bloc à analyser *)
+(* Renvoie le bloc de type AstType.bloc *)
+(* Erreur si mauvaise utilisation des types *)
 and analyse_type_bloc li = List.map analyse_type_instruction li
 
-
+(*analyse_type_fonction : AstTds.Fonction -> Astype.Fonction*)
+(* Paramètre f : la fonction à analyser *)
+(* Renvoie la fonction de type AstType.Fonction *)
+(* Erreur si mauvaise utilisation des types *)
 let analyse_type_fonction (AstTds.Fonction(t,info,lp,bloc)) = 
   let ltype = List.map fst lp in
   let linfo = List.map (fun (t, infop) -> modifier_type_variable t infop; infop) lp in
@@ -144,9 +164,10 @@ let analyse_type_fonction (AstTds.Fonction(t,info,lp,bloc)) =
   let nbloc = analyse_type_bloc bloc in
   AstType.Fonction(info, linfo, nbloc)
 
-let analyse_type_fonctions lf = List.map analyse_type_fonction lf
-
-
+(*analyse_type_var : AstTds.var -> AstType.var*)
+(* Paramètre v : la variable globale à analyser *)
+(* Renvoie la variable globale de type AstType.var *)
+(* Erreur si mauvaise utilisation des types *)
 let analyse_type_var (AstTds.Var (t, info, e)) = 
   let (me,te) = analyse_type_expression e in 
   if est_compatible t te then
@@ -155,14 +176,12 @@ let analyse_type_var (AstTds.Var (t, info, e)) =
   else
     raise (TypeInattendu (te, t))
 
-let annalyse_type_vars lv = List.map analyse_type_var lv
-
 (* analyser : AstType.programme -> AstType.programme *)
 (* Paramètre : le programme à analyser *)
 (* Vérifie la bonne utilisation des types et tranforme le programme
 en un programme de type AstType.programme *)
 (* Erreur si mauvaise utilisation des types *)
 let analyser (AstTds.Programme (var,fonctions,prog)) =
-  let nv = annalyse_type_vars var in
+  let nv = List.map analyse_type_var var in
   
-  AstType.Programme(nv,analyse_type_fonctions fonctions, analyse_type_bloc prog)
+  AstType.Programme(nv, List.map analyse_type_fonction fonctions, analyse_type_bloc prog)

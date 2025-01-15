@@ -35,10 +35,6 @@ val ajouter : tds -> string -> info_ast -> unit
 (* Ne cherche que dans la tds de plus bas niveau *)
 val chercherLocalement : tds -> string -> info_ast option 
 
-(* Recherche les informations d'un identificateur dans la tds principale *)
-(* Ne cherche que dans la tds de plus bas niveau *)
-val chercherRoot : tds -> string -> info_ast option 
-
 (* Recherche les informations d'un identificateur dans la tds globale *)
 (* Si l'identificateur n'est pas présent dans la tds de plus bas niveau *)
 (* la recherche est effectuée dans sa table mère et ainsi de suite *)

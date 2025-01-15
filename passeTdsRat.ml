@@ -10,10 +10,9 @@ type t2 = Ast.AstTds.programme
 (* analyse_tds_affectable : tds -> AstSyntax.affectable -> bool -> AstTds.affectable*)
 (* Paramètre tds : la table des symboles courante *)
 (* Paramètre a : l'affectation à analyser *)
-(* Paramère modif : Booleen pour savoir si l'affectable est à gauche (true) ou si l'affectable est à droite (false) *)
-(* Transforme l'expression en une expression de type AstTds.expression
-et vérifie TODO... *)
-(* Erreur si TODO... *)
+(* Paramère modif : Booleen pour savoir si l'affectable est à gauche (true) ou si l'affectable est à droite (false) du égale*)
+(* Transforme l'expression en une expression de type AstTds.expression et vérifie que l'affectable est correctement utilisé *)
+(* Erreur si on tente de modifier une constante ou si l'affectable est en réalité une fonction *)
 let rec analyse_tds_affectable tds a modif = match a with
   |AstSyntax.Ident n -> 
       begin
@@ -37,9 +36,11 @@ let rec analyse_tds_affectable tds a modif = match a with
     let nv = analyse_tds_affectable tds a modif in
     AstTds.Deref(nv)
 
-(* analyse_tds_expression : tds -> AstSyntax.expression -> AstTds.expression *)
+(* analyse_tds_expression : tds -> AstSyntax.expression -> tds * Hashtbl -> AstTds.expression *)
 (* Paramètre tds : la table des symboles courante *)
 (* Paramètre e : l'expression à analyser *)
+(* Paramètre tds_main : la table des symboles racine *)
+(* Paramètre dico_defaut : dictionnaire des paramètres par défaut des fonctions *)
 (* Vérifie la bonne utilisation des identifiants et transforme l'expression
 en une expression de type AstTds.expression *)
 (* Erreur si mauvaise utilisation des identifiants *)
@@ -83,6 +84,12 @@ let rec analyse_tds_expression tds e (tds_main, dico_defaut)= match e with
   | AstSyntax.New t -> AstTds.New t
   | AstSyntax.Null -> AstTds.Null
 
+(* completer_arguments : tds -> Hashtbl -> AstTds.expression list -> AstSyntax.expression list -> AstTds.expression list*)
+(* Paramètre tds : la table des symboles racine (On utilise la table racine pour éviter l'utilisation d'autres variables que celles globales)*)
+(* Paramètre dico_defaut : dictionnaire des paramètres par défaut des fonctions *)
+(* Paramètre args : la liste des arguments analysés *)
+(* Paramètre l_defaut : la liste des paramètres par défaut de la fonction *)
+(* Renvoie la liste des arguments complétée avec les paramètres par défaut*)
 and completer_arguments tds_main dico_defaut args l_defaut =
   match (l_defaut, args) with
     | [], [] -> []
@@ -93,11 +100,13 @@ and completer_arguments tds_main dico_defaut args l_defaut =
         arg :: completer_arguments tds_main dico_defaut args_q q
     | [], t :: q -> t :: completer_arguments tds_main dico_defaut q []
 
-(* analyse_tds_instruction : tds -> info_ast option -> AstSyntax.instruction -> AstTds.instruction *)
+(* analyse_tds_instruction : tds -> info_ast option -> AstSyntax.instruction -> tds * Hashtbl -> AstTds.instruction *)
 (* Paramètre tds : la table des symboles courante *)
 (* Paramètre oia : None si l'instruction i est dans le bloc principal,
                    Some ia où ia est l'information associée à la fonction dans laquelle est l'instruction i sinon *)
 (* Paramètre i : l'instruction à analyser *)
+(* Paramètre tds_main : la table des symboles racine *)
+(* Paramètre dico_defaut : dictionnaire des paramètres par défaut des fonctions *)
 (* Vérifie la bonne utilisation des identifiants et tranforme l'instruction
 en une instruction de type AstTds.instruction *)
 (* Erreur si mauvaise utilisation des identifiants *)
@@ -193,8 +202,8 @@ let rec analyse_tds_instruction tds oia i (tds_main, dico_defaut) =
         begin
           match chercherLocalement tds n with
           | None ->
-              (* On autorise seulement les literaux et les variables globales dans les variables static locale comme dans le langage C*)
-              (* Ainsi, on analyse l'expression seulement dans la tds_main où il y a les variables globales*)
+              (* On autorise seulement les literaux et les variables globales dans les variables static locale *)
+              (* Ainsi, on analyse l'expression seulement dans la tds_main où il y a les variables globales et les fonctions *)
               let ne = analyse_tds_expression tds_main e (tds_main, dico_defaut) in
               let info = InfoVar (n,Undefined, 0, "") in
               let iap = info_to_info_ast info in
@@ -239,8 +248,9 @@ let rec get_liste_param_defaut params defaut_present =
       else 
         None::(get_liste_param_defaut q false)
 
-(* analyse_tds_fonction : tds -> AstSyntax.fonction -> AstTds.fonction *)
+(* analyse_tds_fonction : tds -> Hashtbl -> AstSyntax.fonction -> AstTds.fonction *)
 (* Paramètre tds : la table des symboles courante *)
+(* Paramètre dico_defaut : dictionnaire des paramètres par défaut des fonctions *)
 (* Paramètre : la fonction à analyser *)
 (* Vérifie la bonne utilisation des identifiants et tranforme la fonction
 en une fonction de type AstTds.fonction *)
@@ -274,7 +284,7 @@ let analyse_tds_fonction maintds dico_defaut (AstSyntax.Fonction(t,n,lp,li)) =
     let nli = analyse_tds_bloc tds (Some info_ast_fonction) li (maintds, dico_defaut) in
     AstTds.Fonction(t, info_ast_fonction, nlp, nli)
 
-(* analyser : AstSyntax.var -> AstTds.var*)
+(* annalyse_tds_var : AstSyntax.var -> AstTds.var*)
 (* Paramètre : la variable globale  à analyser *)
 (* Vérifie la bonne utilisation des identifiants et tranforme le programme
 en un programme de type AstTds.programme *)
@@ -312,7 +322,7 @@ en un programme de type AstTds.programme *)
 (* Erreur si mauvaise utilisation des identifiants *)
 let analyser (AstSyntax.Programme (varStatic,fonctions,prog)) =
   let tds = creerTDSMere () in
-  let dico_defaut = Hashtbl.create 100 in
+  let dico_defaut = Hashtbl.create 100 in (* Dictionnaire des paramètres par défaut*)
   let nv = List.map (annalyse_tds_var tds dico_defaut) varStatic in 
   let nf = List.map (analyse_tds_fonction tds dico_defaut) fonctions in
   let nb = analyse_tds_bloc tds None prog (tds,dico_defaut) in

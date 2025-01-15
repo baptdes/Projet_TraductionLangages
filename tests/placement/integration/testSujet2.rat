@@ -1,0 +1,20 @@
+static int *g = (new int) ;
+static int un = 1;
+
+int f (int a, int b = (*g)) {
+    static int c = un ;
+    int r = ((a+b)+c);
+    c = (c+un);
+    return r;
+}
+
+main {
+    int x = 5;
+    *g = 3;
+    print (f (1,2));
+    print (f (1,2));
+    print (f (1));
+    print (f (1));
+    *g = 4;
+    print (f (1));
+}

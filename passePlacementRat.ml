@@ -58,9 +58,10 @@ and analyse_placement_bloc li depml reg = match li with
             (ni::nq, ti + tq)
 
 (* AstType.instruction -> int -> int *)
-(* Paramètre i : l'instruction à analyser *)
+(* Paramètre i : l'instruction provenant d'une fonction à analyser *)
 (* Paramètre deplLB : le déplacement courant de LB*)
 (* Paramère deplSB : le déplacement courant de SB*)
+(* Renvoie l'instruction i avec les déplacements mémoire mis à jour (dans LB et SB)*)
 let analyse_placement_instruction_fonction i deplLB deplSB = 
   match i with
     (* Cas des variables statiques *)
@@ -74,6 +75,12 @@ let analyse_placement_instruction_fonction i deplLB deplSB =
         end
     | _ -> analyse_placement_instruction i deplLB "LB", 0
 
+(*analyse_placement_bloc_fonction : AstType.instruction list -> int -> int -> (AstPlacement.instruction list * int) * (AstPlacement.instruction list * int)*)
+(*Paramètre li : liste d'instructions à analyser*)
+(*Paramètre deplLB : le déplacement courant de LB*)
+(*Paramètre deplSB : le déplacement courant de SB*)
+(*Renvoie la liste d'instructions li (sans les variables statiques) avec les déplacements mémoire mis à jour*)
+(* ainsi que la liste des déclarations de variables statiques avec les déplacements mémoire mis à jour*)
 let rec analyse_placement_bloc_fonction li deplLB deplSB =
   match li with
       | [] -> ([], 0), ([],0)
@@ -88,6 +95,9 @@ let rec analyse_placement_bloc_fonction li deplLB deplSB =
           ((i::li, tailleLB + tailleActuelleLB), (lstatic, tailleSB + tailleActuelleSB))
 
 (*AstType.fonction -> AstPlacement.fonction * int*)
+(* Paramètre AstType.fonction : Fonction à analyser *)
+(* Paramètre deplSB : le déplacement courant de SB*)
+(* Renvoie la fonction f analysée ainsi que les variables statiques et le déplacement qu'elles induisent dans SB *)
 let analyse_placement_fonction (AstType.Fonction(info,lp,li)) deplSB = 
   (* Placement des paramètres *)
   let rec placer_parametres lp depl = match lp with
@@ -106,8 +116,7 @@ let analyse_placement_fonction (AstType.Fonction(info,lp,li)) deplSB =
   let (bloc,(lv,deplSB)) = analyse_placement_bloc_fonction li 3 deplSB in
   AstPlacement.Fonction(info,lp,bloc), deplSB, lv
 
-
-(*AstType.var -> int -> AstPlacement.var * int*)
+(* AstType.var -> int -> AstPlacement.var * int*)
 (* Paramètre AstType.var : Variable à analyser *)
 (* Paramètre depl : le déplacement courant *)
 (* Renvoie la variable e avec le déplacement mémoire mis à jour *)
@@ -118,7 +127,7 @@ let analyse_placement_var  (AstType.Var (info, e)) depl =
     | _ -> failwith "La passe Tds est mal faite"
 
 
-(*AstType.var list -> AstPlacement.var list * int*)
+(* AstType.var list -> AstPlacement.var list * int*)
 (* Paramètre vars : Variables globales à analyser *)
 (* Renvoie la liste des variables globales avec le déplacement totale lié à ses variables *)
 let rec analyse_placement_vars vars = 
@@ -131,15 +140,18 @@ let rec analyse_placement_vars vars =
 
 
 (*AstType.programme -> AstPlacement.programme*)
+(* Paramètre AstType.programme : Programme à analyser *)
+(* Renvoie le programme p avec les déplacements mémoire mis à jour *)
 let analyser (AstType.Programme(vars,fonctions,bloc)) = 
   (* Analyse des variables globales pour connaitre leurs déplacements *)
   let nv,deplv = (analyse_placement_vars vars) in
   (* Analyse des fonctions pour connaitre le déplacement lié leurs variables statiques*)
   let nlf,depTotal,lv = List.fold_left(fun acc i -> 
+    (*Accumulation des fonctions analysées, du déplacement dans SB et des variables globales*)
     let f,accdep,nlv = acc in
     let nf,depl,lv = (analyse_placement_fonction i accdep) in 
     nf::f,(accdep+depl),nlv@lv) ([],deplv,[]) fonctions
   in
   (* Décalage du bloc en fonction de la place que prennent les variables globales et statiques*)
   let nb = analyse_placement_bloc bloc depTotal "SB" in
-  AstPlacement.Programme((nv,deplv),(nlf,depTotal),nb,lv)
+  AstPlacement.Programme((nv,deplv),nlf,nb,lv)

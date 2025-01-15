@@ -1,0 +1,7 @@
+int f(int a, int * x  = 5) {
+    return a;
+}
+
+main{
+    print (f (2));
+}

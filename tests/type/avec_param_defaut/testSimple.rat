@@ -1,0 +1,7 @@
+int f (int a, int b = 5, rat c = [2/3]) {
+    return a;
+}
+
+main {
+    print (f (1,2));
+}

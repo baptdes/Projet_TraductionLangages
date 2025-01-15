@@ -1,0 +1,10 @@
+static int * p = (new int);
+
+int f(int a, int * x  = p) {
+    static int * d = p;
+    return a;
+}
+
+main{
+    print (f (2));
+}

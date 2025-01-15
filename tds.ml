@@ -170,23 +170,6 @@ let rec chercherGlobalement tds nom =
       | Some _ as i -> i
       | None -> chercherGlobalement m nom 
 
-
-(* Recherche les informations d'un identificateur dans la tds globale *)
-(* Si l'identificateur n'est pas présent dans la tds de plus bas niveau *)
-(* la recherche est effectuée dans sa table mère et ainsi de suite *)
-(* jusqu'à trouver (ou pas) l'identificateur *)
-let rec chercherRoot tds nom =
-  match tds with
-  | Nulle -> None
-  | Courante (m,c) ->
-    match m with 
-     | Courante(_,_) -> chercherRoot m nom 
-     | Nulle -> match find_opt c nom with
-        | Some _ as i -> i
-        | None -> None
-     
-
-
 (* TESTS *)
 
 let%test _ = chercherGlobalement (creerTDSMere()) "x" = None
