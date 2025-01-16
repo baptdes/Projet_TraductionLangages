@@ -154,4 +154,4 @@ let analyser (AstType.Programme(vars,fonctions,bloc)) =
   in
   (* Décalage du bloc en fonction de la place que prennent les variables globales et statiques*)
   let nb = analyse_placement_bloc bloc depTotal "SB" in
-  AstPlacement.Programme((nv,deplv),nlf,nb,lv)
+  AstPlacement.Programme(nv,(nlf,depTotal),nb,lv)

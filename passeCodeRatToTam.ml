@@ -33,6 +33,8 @@ let rec analyse_code_affectable a modif deref = match a with
       (analyse_code_affectable aff modif true) ^ action
 
 (*AstPlacement.expression -> string *)
+(* Analyse les expressions pour les transformer en code Tam *)
+(* Renvoie le code associé à l'expression en entrée *)
 let rec analyse_code_expression e = match e with
   | AstType.Affectable(a) ->
     analyse_code_affectable a false false
@@ -77,6 +79,8 @@ let rec analyse_code_expression e = match e with
     Tam.loadl_int 0 (*Null = 0 en mémoire*)
 
 (* AstPlacement.instruction -> String *)
+(* Analyse les instructions pour les transformer en code Tam *)
+(* Renvoie le code associé à l'instruction en entrée *)
 let rec analyse_code_instruction i = match i with
   | AstPlacement.Declaration(info,e) -> 
     let ne = analyse_code_expression e in
@@ -153,8 +157,8 @@ let analyse_code_var (AstPlacement.Var(info,e)) =
 
 
 (* AstPlacement.programme -> String *)
-(* Renvoie le code Tam du programme en entrée *)
-let analyser (AstPlacement.Programme((vars,depl),fonctions,prog,lvs)) = 
+(* Analyse le programme en entrée et renvoie le code Tam associé *)
+let analyser (AstPlacement.Programme(vars,(fonctions,depl),prog,lvs)) = 
   let n = Code.getEntete() in
   (* Initialisation des variables globales *)
   let nv = List.fold_left (fun acc i -> acc ^ (analyse_code_var i)) "" vars in 
@@ -162,5 +166,5 @@ let analyser (AstPlacement.Programme((vars,depl),fonctions,prog,lvs)) =
   let nf = List.fold_left (fun acc i -> acc ^ (analyse_code_fonction i)) "" fonctions in
   (* Initialisation des variables statiques des fonctions (comme on connait déjà leurs valeurs, on les initialise dès le début)*)
   let nlvs = List.fold_left (fun acc i -> acc ^ (analyse_code_static i)) "" lvs in
-  let (np,nt) = prog in  
-  n ^ nf ^ Tam.label "main" ^ nv ^ nlvs ^ analyse_code_bloc (np, nt + depl ) ^ Tam.halt
+  let (np,nt) = prog in 
+  n ^ nf ^ Tam.label "main" ^ nv ^ nlvs ^ analyse_code_bloc (np, nt) ^ Tam.pop 0 depl ^ Tam.halt
